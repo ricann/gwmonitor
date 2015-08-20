@@ -1,0 +1,52 @@
+<RCC>
+    <qresource prefix="/map">
+        <file>map.html</file>
+    </qresource>
+    <qresource prefix="/img">
+        <file>bullet_blue.png</file>
+        <file>node_1.jpg</file>
+        <file>node_2.jpg</file>
+        <file>node_3.jpg</file>
+        <file>node_4.jpg</file>
+        <file>bullet_red.png</file>
+        <file>arrow_0.png</file>
+        <file>arrow_22.png</file>
+        <file>arrow_45.png</file>
+        <file>arrow_67.png</file>
+        <file>arrow_90.png</file>
+        <file>arrow_112.png</file>
+        <file>arrow_135.png</file>
+        <file>arrow_157.png</file>
+        <file>arrow_180.png</file>
+        <file>arrow_202.png</file>
+        <file>arrow_225.png</file>
+        <file>arrow_247.png</file>
+        <file>arrow_270.png</file>
+        <file>arrow_292.png</file>
+        <file>arrow_315.png</file>
+        <file>arrow_337.png</file>
+        <file>a_up.png</file>
+        <file>a_down.png</file>
+        <file>a_left.png</file>
+        <file>a_right.png</file>
+        <file>pauseBtn.png</file>
+        <file>playBtn.png</file>
+        <file>bulbDown.png</file>
+        <file>bulbOn.png</file>
+        <file>replay.png</file>
+        <file>internet.png</file>
+        <file>node_0.jpg</file>
+        <file>server.png</file>
+        <file>node_asleep.png</file>
+        <file>node_active.png</file>
+        <file>node_6.jpg</file>
+        <file>node_5.jpg</file>
+        <file>replay.gif</file>
+        <file>zoom-in.png</file>
+        <file>zoom-out.png</file>
+        <file>cam_add_48.ico</file>
+        <file>cam_del_48.ico</file>
+        <file>cam_close_48.ico</file>
+        <file>cam_open_48.ico</file>
+    </qresource>
+</RCC>

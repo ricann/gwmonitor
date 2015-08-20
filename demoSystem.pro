@@ -1,0 +1,97 @@
+#-------------------------------------------------
+#
+# Project created by QtCreator 2013-11-12T15:20:53
+#
+#-------------------------------------------------
+
+QT       += core gui
+QT       += webkit
+QT       += network
+QT       += sql
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
+
+TARGET = demoSystem
+TEMPLATE = app
+
+
+SOURCES += main.cpp\
+        mainwindow.cpp \
+    datadialog.cpp \
+    infodialog.cpp \
+    info.cpp \
+    dataAnalysis.cpp \
+    qcustomplot.cpp \
+    plotdialog.cpp \
+    process.cpp \
+    gilbert.cpp \
+    display_func.cpp \
+    decode_func.cpp \
+    raptorcode.cpp \
+    matrix.cpp \
+    paintableVedio.cpp \
+    luagw.cpp \
+    videoControl.cpp \
+    resetTime.cpp \
+    dragablebutton.cpp \
+    dropableplot.cpp \
+    power.cpp \
+    ffmpeg.cpp
+
+HEADERS  += mainwindow.h \
+    datadialog.h \
+    infodialog.h \
+    connection.h \
+    info.h \
+    dataAnalysis.h \
+    qcustomplot.h \
+    plotdialog.h \
+    HCNetSDK.h \
+    process.h \
+    targetver.h \
+    t_best.h \
+    gilbert.h \
+    externvar.h \
+    display_func.h \
+    def.h \
+    decode_func.h \
+    StdAfx.h \
+    sdkddkver.h \
+    raptorcode.h \
+    matrix.h \
+    paintableVedio.h \
+    luagw.h \
+    videoControl.h \
+    resetTime.h \
+    dragablebutton.h \
+    dropableplot.h \
+    power.h \
+    ffmpeg.h
+
+FORMS    += mainwindow.ui \
+    datadialog.ui \
+    infodialog.ui \
+    plotdialog.ui \
+    process.ui \
+    videoControl.ui
+
+RESOURCES += \
+    final.qrc
+
+LIBS += -lWs2_32
+win32: LIBS += -L$$PWD/ -lHCNetSDK
+
+INCLUDEPATH +=  SDL/include
+LIBS += SDL/lib/libSDL.dll.a
+
+INCLUDEPATH +=  ffmpeg/include
+LIBS += ffmpeg/lib/libavcodec.dll.a \
+        ffmpeg/lib/libavdevice.dll.a \
+        ffmpeg/lib/libavfilter.dll.a \
+        ffmpeg/lib/libavformat.dll.a \
+        ffmpeg/lib/libavutil.dll.a \
+        ffmpeg/lib/libpostproc.dll.a \
+        ffmpeg/lib/libswscale.dll.a \
+
+
+
+

@@ -1,0 +1,25 @@
+
+camera 1 : file 0 is created.
+camera 0 : file 0 closed.
+
+camera 1 : file 1 is created.
+camera 0 : file 1 closed.
+
+camera 1 : file 2 is created.
+camera 0 : file 2 closed.
+
+camera 1 : file 3 is created.
+
+camera 1 : file 0 is created.
+camera 0 : file 0 closed.
+
+camera 1 : file 0 is created.
+camera 0 : file 0 closed.
+
+camera 1 : file 1 is created.
+camera 0 : file 1 closed.
+
+camera 1 : file 2 is created.
+
+camera 1 : file 0 is created.
+camera 0 : file 0 closed.
