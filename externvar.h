@@ -51,7 +51,6 @@ typedef struct DisplayPara{
     int my_height;
 }DisplayPara;
 
-#define K_MAX 1000
 #define K1_MAX 10
 #define T_MAX 1024
 
