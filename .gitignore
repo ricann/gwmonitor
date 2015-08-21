@@ -1,4 +1,4 @@
 debug
 release
 *.txt
-*.txt
+ui_*.h

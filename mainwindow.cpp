@@ -2130,6 +2130,10 @@ void MainWindow::setShowCamera(int *new_win_camera){
 
 void MainWindow::loginpan()
 {
+    char ip[] = "10.0.0.64";
+    char user[] = "admin";
+    char passwd[] = "12345";
+
     // 初始化
     NET_DVR_Init();
     //设置连接时间与重连时间
@@ -2137,16 +2141,15 @@ void MainWindow::loginpan()
     NET_DVR_SetReconnect(10000, true);
 
     // 注册设备
-    lUserID = NET_DVR_Login_V30("10.0.0.64", 8000, "admin",
-"12345", &struDeviceInfo);
+    lUserID = NET_DVR_Login_V30(ip, 8000, user, passwd, &struDeviceInfo);
 
     if (lUserID < 0)
     {
-        QMessageBox::information(this,"TIP","Login Error!");
+        QMessageBox::information(this, "TIP", "Login Error!");
         NET_DVR_Cleanup();
     }
     else
-        QMessageBox::information(this , "TIP" , "Login Success!");
+        QMessageBox::information(this, "TIP" ,"Login Success!");
 }
 
 void MainWindow::on_upBtn_pressed()
@@ -2224,6 +2227,8 @@ void MainWindow::tabIndexChanged()
 /////////////////----------触发播放按钮-------------///////////////////
 void MainWindow::call_on_treeBtn_clicked(QTreeWidgetItem *item, int column)
 {
+    Q_UNUSED(item);
+    Q_UNUSED(column);
     on_treeBtn_clicked();
 }
 
