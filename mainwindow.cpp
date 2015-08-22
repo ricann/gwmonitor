@@ -1593,18 +1593,22 @@ void MainWindow::SDL_init(){
         exit(1);
     }
 
+    //ricann change, 20150822
+    //use avformat_alloc_context instead of av_alloc_format_context
+    //use avformat_open_input instead of av_open_input_file
+    //use av_dump_format instead of dump_format
 
     av_register_all();//注册库中含有的所有可用的文件格式和编码器，当打开一个文件时，能够自动选择相应的文件格式和编码器
-    pFormatCtx = av_alloc_format_context();//给pFormatCtx分配内存
+    pFormatCtx = avformat_alloc_context();//给pFormatCtx分配内存
     if (!pFormatCtx){
-        cout<<"av_alloc_format_context() failure"<<endl;
+        cout<<"avformat_alloc_context() failure"<<endl;
         exit(-1);
     }
 
 
     char filename[] = "1.264";
-    if(av_open_input_file(&pFormatCtx,filename, NULL, 0, NULL)!=0){// 打开视频文件
-        cout<<"av_open_input_file() failure"<<endl;
+    if(avformat_open_input(&pFormatCtx, filename, NULL, NULL) !=0 ){// 打开视频文件
+        cout<<"avformat_open_input() failure"<<endl;
         exit(-1);
     }
 
@@ -1614,7 +1618,7 @@ void MainWindow::SDL_init(){
         exit(-1);
     }
 
-    dump_format(pFormatCtx, 0, filename, 0);//把获取到得参数全部输出
+    av_dump_format(pFormatCtx, 0, filename, 0);//把获取到得参数全部输出
 
     int videoStream = -1;
     for(int i=0; i < (int)(pFormatCtx->nb_streams); i++){
