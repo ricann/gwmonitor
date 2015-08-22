@@ -758,25 +758,19 @@ void MainWindow::timeForecast(QString code2, int node2)
         return ;
     }
 
-//    for(int i=0;i<count;i++)
-//        qDebug()<<"value["<<i<<"]"<<value[i];
+    //for(int i=0;i<count;i++)
+        //qDebug()<<"value["<<i<<"]"<<value[i];
     double sum1,sum2,avg1,avg2;
     sum1=0;
     for(int i=0;i<count;i++)
         sum1+=value[i];
     avg1=sum1/count;
-//    qDebug()<<"sum1="<<sum1<<"  avg1="<<avg1;
+    //qDebug()<<"sum1="<<sum1<<"  avg1="<<avg1;
 
     sum2=0;
     for(int i=0;i<count;i++)
         sum2+=qPow((value[i]-avg1),2);
     avg2=sum2/(count-1);
-    qreal t=qSqrt(avg2);
-//    qDebug()<<"sum2="<<sum2<<"  avg2="<<avg2<<"  t="<<t;
-
-    double z=(value[count-1]-avg1)/t;
-    double r=qFabs(z-7);
-//    qDebug()<<"z="<<z<<"  cancha:  "<<r;
 }
 
 void MainWindow::addJavaScriptObject()
@@ -1577,7 +1571,7 @@ void MainWindow::SDL_init(){
     char variable[64];
 
 #ifdef Q_OS_WIN
-    sprintf(variable, "SDL_WINDOWID=0x%lx", ui->video->winId());
+    sprintf(variable, "SDL_WINDOWID=0x%lx", (long unsigned int)ui->video->winId());
 #else
     sprintf(variable, "SDL_WINDOWID=0x%lx", this->winId());
 #endif
@@ -1608,7 +1602,7 @@ void MainWindow::SDL_init(){
     }
 
 
-    char *filename="1.264";
+    char filename[] = "1.264";
     if(av_open_input_file(&pFormatCtx,filename, NULL, 0, NULL)!=0){// 打开视频文件
         cout<<"av_open_input_file() failure"<<endl;
         exit(-1);

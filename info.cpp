@@ -290,6 +290,8 @@ void Info::setNodeOut()
 
 void Info::deCount(int index)
 {
+    Q_UNUSED(index);
+
     count--;
     //qDebug()<<"index="<<index<<"  after count:"<<count;
 }

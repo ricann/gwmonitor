@@ -19,10 +19,6 @@ using namespace std;
 #include <map>
 #include <fstream>
 
-#ifndef MAXLINE
-#define MAXLINE 1024
-#endif
-
 #ifndef LENGTH_ND
 #define LENGTH_ND 22
 #endif
@@ -378,7 +374,7 @@ void analyHis(char*paket, hisrecord*result)
             //longitude = stof(longi);
         }
     }
-    /*****************/
+    //*/
 }
 
 void time_convert(char* timestemp, char*time_rtn)

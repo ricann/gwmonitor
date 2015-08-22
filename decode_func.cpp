@@ -380,7 +380,7 @@ void Object::decode(){
         {
             if(frame_header->frame_type == 1)//raptor
             {
-                if(raptor_K_temp == K_old){
+                if((int)raptor_K_temp == K_old){
                     //send a signal to the sender so as to skip the last slices
                     continue;
                 }
@@ -435,7 +435,7 @@ void Object::decode(){
 
             if(raptor_N_recieve > 0)
             {
-                if(K_old == raptor_K_recieve && K_old)//如果源分片全部接收到，则无需raptor解码，直接存入output_buf
+                if(K_old == (int)raptor_K_recieve && K_old)//如果源分片全部接收到，则无需raptor解码，直接存入output_buf
                 {
                     result_dec = 1;
                     output_buf_size = K_old*T_cur;
@@ -462,7 +462,7 @@ void Object::decode(){
                 }
                 else//如果需要raptor解码
                 {
-                    if(raptor_N_recieve > K_old)//如果接收到的分片总数超过源分片的总数  则进行raptor解码
+                    if((int)raptor_N_recieve > K_old)//如果接收到的分片总数超过源分片的总数  则进行raptor解码
                     {
                         RParam_dec para = (RParam_dec)malloc(sizeof(RaptorParam_dec));
 

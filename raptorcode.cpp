@@ -14,7 +14,6 @@ static void raptor_intermediate(RParam_dec parameter);
 static void raptor_getLDPC(RParam_dec parameter);
 static void raptor_getH(RParam_dec parameter);
 static void raptor_getLT(RParam_dec parameter);
-static void raptor_dec_stepone(RParam_dec para_dec);
 static void raptor_getLTrow(uint32 L, uint8* input, triple trp,uint32 l1);
 
 //从0<=k<=8192, S，H相应的值

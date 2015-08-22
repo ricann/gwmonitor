@@ -66,7 +66,7 @@ int matrix_inverse(mymatrix A,mymatrix A_1){
     /////////////////////*/
     for(j=0; j<A->row; j++){
         search_1 = search_col_1(matpoint,j,A->row);
-        if(search_1 == -1){
+        if((int)search_1 == -1){
             printf("A not manyi\n");
             return 0;
         }
@@ -204,7 +204,7 @@ int matrix_equations(mymatrix A,uint8* D,uint32 size){
         search_1 = search_col_1(matpoint,j,A->row);
 
         if(search_1!=j){
-            if(search_1 == -1){
+            if((int)search_1 == -1){
                 //if(j ==
                 return 0;
             }

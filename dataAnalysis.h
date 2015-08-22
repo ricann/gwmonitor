@@ -1,9 +1,6 @@
 #ifndef DATAANALYSIS_H
 #define DATAANALYSIS_H
 
-#ifndef MAXLINE
-#define MAXLINE 1024
-#endif
 /**
  * struct to resotre information on contaminant of realtime-data-msg
  */

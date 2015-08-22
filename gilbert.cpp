@@ -69,7 +69,7 @@ int gilbert(void * EBR_data_addr, int frame_len, FILE * fd, int state, long Fnum
     ran = (int)(10000*rand()/(RAND_MAX+1.0));
     switch(state)
     {
-        fprintf(fd, "%ld ", state);
+        fprintf(fd, "%ld ", (long int)state);
         fflush(fd);
         case 0:
             //if(((float)1/rand()) <= P_GB)

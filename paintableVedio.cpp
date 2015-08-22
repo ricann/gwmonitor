@@ -25,11 +25,15 @@ PaintableVedio::~PaintableVedio(){
 void PaintableVedio::paintEvent(QPaintEvent*p){
     QPainter painter(this);
     QPen pen;                                 //创建一个画笔
+
+    //ricann 20150822
+    Q_UNUSED(p);
+
     pen.setColor(Qt::darkCyan);
     pen.setWidth(5);
     painter.setPen(pen);
 
-    for(int i = 0;i<lines.size();i++){
+    for(int i=0; i<(int)lines.size(); i++){
         myLine* pLine = lines[i];
         painter.drawLine(pLine->startPnt,pLine->endPnt);
     }
@@ -77,6 +81,9 @@ void PaintableVedio::mouseMoveEvent(QMouseEvent *e){
 }
 
 void PaintableVedio::mouseReleaseEvent(QMouseEvent *e){
+    //ricann 20150822
+    Q_UNUSED(e);
+
     setCursor(Qt::ArrowCursor);
     qDebug() << "mouse moves" << endl;
     this->isPressed = false;
