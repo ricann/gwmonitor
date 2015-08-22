@@ -4,7 +4,6 @@
 
 static uint32 search_col_1(uint8** mat, uint32 start,uint32 row);
 static void row_exchange(uint32 row, uint32 col, uint8** mat,uint32 matsize);
-static void row_sub(uint32 row1,uint32 row2,uint8** mat,uint32 matsize,uint8 temp1,uint8 temp2);
 static void row_or(uint32 row1,uint32 row2,uint8** mat,uint32 matsize);
 static void matrix_free(uint8** mat,uint32 size);
 static void my_xor(uint8 * x, uint8 * y, uint32 size);
@@ -143,24 +142,6 @@ static void row_exchange(uint32 row1, uint32 row2, uint8** mat,uint32 matsize){
     memcpy(mat[row2],temp,matsize);
     free(temp);
     temp = NULL;
-}
-
-//两列相减 row1 - row2
-static void row_sub(uint32 row1,uint32 row2,uint8** mat,uint32 matsize,uint8 temp1,uint8 temp2){
-    uint32 i;
-
-    if(temp1 == 1){
-        for(i=0; i<matsize; i++){
-            mat[row1][i] = mat[row1][i] - temp2*mat[row2][i];
-        }
-    }
-    else{
-        if(temp1 != 0){
-            for(i=0; i<matsize; i++){
-                mat[row1][i] = temp1*mat[row1][i] - temp2*mat[row2][i];
-            }
-        }
-    }
 }
 
 //两行异或 row1异或row2，结果存在row1
