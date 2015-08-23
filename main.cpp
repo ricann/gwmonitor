@@ -1,7 +1,8 @@
 #include "mainwindow.h"
-#include "connection.h"
 
 #undef main
+
+static bool createConnection();
 
 int main(int argc, char *argv[])
 {
@@ -16,4 +17,26 @@ int main(int argc, char *argv[])
     w.show();
     
     return a.exec();
+}
+
+static bool createConnection()
+{
+    qDebug()<<"Available drivers :";
+    QStringList drivers=QSqlDatabase::drivers();
+    foreach (QString driver, drivers) {
+        qDebug()<<driver;
+    }
+
+    //--------------打开MySQL----------------------
+    QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL");
+    db.setHostName("localhost");
+    db.setDatabaseName("stnproject");
+    db.setUserName("root");
+    db.setPassword("632");
+    if(!db.open())
+    {
+        qDebug()<<"Failed to connect to mysql";
+        return false;
+    }
+    return true;
 }

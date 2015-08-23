@@ -39,7 +39,6 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     datadialog.h \
     infodialog.h \
-    connection.h \
     info.h \
     dataAnalysis.h \
     qcustomplot.h \
