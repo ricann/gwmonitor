@@ -47,15 +47,10 @@ HEADERS  += mainwindow.h \
     plotdialog.h \
     HCNetSDK.h \
     process.h \
-    targetver.h \
-    t_best.h \
     gilbert.h \
     externvar.h \
     display_func.h \
-    def.h \
     decode_func.h \
-    StdAfx.h \
-    sdkddkver.h \
     raptorcode.h \
     matrix.h \
     paintableVedio.h \

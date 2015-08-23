@@ -1,12 +1,17 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "def.h"
 #include <malloc.h>
 #include <math.h>
 #include <string.h>
 
-#define LEN_INT 4;
+//ricann 20150823
+typedef	unsigned char uint8;
+typedef unsigned short uint16;
+typedef	unsigned int uint32;
+
+#define LEN_INT 4
+
 typedef struct MyMatrix{
     uint32 row;
     uint32 colum;

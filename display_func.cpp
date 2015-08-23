@@ -1,6 +1,5 @@
 #include <QDebug>
 #include "display_func.h"
-#include "def.h"
 #include <qpoint.h>
 
 extern QList<QPoint> points;//存放SDL画线的点的集合
@@ -309,7 +308,7 @@ void ShowObject::dealShowVideo(){
         }
 
         if(showData){
-            decode = avcodec_decode_video(pCodecCtxT, pFrame, &frameFinished,(const uint8*)showData, dataLength);
+            decode = avcodec_decode_video(pCodecCtxT, pFrame, &frameFinished,(const unsigned char*)showData, dataLength);
             free(showData);
             showData = NULL;
         }

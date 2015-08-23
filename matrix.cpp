@@ -1,5 +1,5 @@
 
-#include "StdAfx.h"
+#include "stdio.h"
 #include "matrix.h"
 
 static uint32 search_col_1(uint8** mat, uint32 start,uint32 row);

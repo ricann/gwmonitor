@@ -2,10 +2,6 @@ using namespace std;
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-/*************************/
-#include "t_best.h"
-/*************************/
-
 #include <QWebFrame>
 #include <QWebView>
 #include <QWebPage>

@@ -1,8 +1,14 @@
 #ifndef RAPTORCODE_H
 #define RAPTORCODE_H
 
-#include "def.h"
 #include "matrix.h"
+
+//ricann 20150823
+typedef	unsigned char uint8;
+typedef unsigned short uint16;
+typedef	unsigned int uint32;
+
+#define Q 65521
 
 typedef struct RaptorParam{
     uint32 K;
