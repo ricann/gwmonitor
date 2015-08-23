@@ -30,7 +30,6 @@
 
 #include <QtGui>
 #include "Winsock2.h"
-#include "HCNetSDK.h"
 
 #include <QPixmap>
 
@@ -59,8 +58,6 @@ QMap<QString,int> treeNodeInt;
 QMap<int,QString> treeIntNode;
 
 int flag = 0;
-LONG lUserID;
-NET_DVR_DEVICEINFO_V30 struDeviceInfo;
 
 QUdpSocket *udpSocket_video;
 
@@ -2118,74 +2115,6 @@ void MainWindow::setShowCamera(int *new_win_camera){
         }
 
     }
-}
-/***************************************/
-
-//***********海康摄像头云台控制部分***********//
-
-void MainWindow::loginpan()
-{
-    char ip[] = "10.0.0.64";
-    char user[] = "admin";
-    char passwd[] = "12345";
-
-    // 初始化
-    NET_DVR_Init();
-    //设置连接时间与重连时间
-    NET_DVR_SetConnectTime(2000, 1);
-    NET_DVR_SetReconnect(10000, true);
-
-    // 注册设备
-    lUserID = NET_DVR_Login_V30(ip, 8000, user, passwd, &struDeviceInfo);
-
-    if (lUserID < 0)
-    {
-        QMessageBox::information(this, "TIP", "Login Error!");
-        NET_DVR_Cleanup();
-    }
-    else
-        QMessageBox::information(this, "TIP" ,"Login Success!");
-}
-
-void MainWindow::on_upBtn_pressed()
-{
-    NET_DVR_PTZControlWithSpeed_Other(lUserID,1,TILT_UP,0,4);
-}
-
-void MainWindow::on_upBtn_released()
-{
-    NET_DVR_PTZControlWithSpeed_Other(lUserID,1,TILT_UP,1,4);
-}
-
-void MainWindow::on_leftBtn_pressed()
-{
-    NET_DVR_PTZControlWithSpeed_Other(lUserID,1,PAN_LEFT,0,4);
-}
-
-void MainWindow::on_leftBtn_released()
-{
-    NET_DVR_PTZControlWithSpeed_Other(lUserID,1,PAN_LEFT,1,4);
-}
-
-void MainWindow::on_rightBtn_pressed()
-{
-    NET_DVR_PTZControlWithSpeed_Other(lUserID,1,PAN_RIGHT,0,4);
-}
-
-void MainWindow::on_rightBtn_released()
-{
-    NET_DVR_PTZControlWithSpeed_Other(lUserID,1,PAN_RIGHT,1,4);
-}
-
-
-void MainWindow::on_downBtn_pressed()
-{
-    NET_DVR_PTZControlWithSpeed_Other(lUserID,1,TILT_DOWN,0,4);
-}
-
-void MainWindow::on_downBtn_released()
-{
-    NET_DVR_PTZControlWithSpeed_Other(lUserID,1,TILT_DOWN,1,4);
 }
 
 ///////////******在tab间切换槽函数******//////////////

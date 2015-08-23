@@ -45,7 +45,6 @@ HEADERS  += mainwindow.h \
     dataAnalysis.h \
     qcustomplot.h \
     plotdialog.h \
-    HCNetSDK.h \
     process.h \
     gilbert.h \
     externvar.h \

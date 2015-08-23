@@ -208,17 +208,6 @@ private slots:
     void recv_local_videodata();
 /**********************************/
 
-    void loginpan();
-    void on_upBtn_pressed();
-    void on_upBtn_released();
-    void on_leftBtn_pressed();
-    void on_leftBtn_released();
-    void on_rightBtn_pressed();
-    void on_rightBtn_released();
-    void on_downBtn_pressed();
-    void on_downBtn_released();
-
-
     void on_mapChgBtn_clicked();
 
     void on_scalarDbBtn_clicked();
