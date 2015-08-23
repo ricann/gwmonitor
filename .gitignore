@@ -1,6 +1,13 @@
 debug
 release
-*.pro.user*
+
 *.264
 *.txt
 ui_*.h
+
+demoSystem.pro.user
+Makefile
+Makefile.Debug
+Makefile.Release
+object_script.demoSystem.Debug
+object_script.demoSystem.Release
