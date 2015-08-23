@@ -1,10 +1,7 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QStringList>
-#include <QDebug>
+#include "commoninc_qt.h"
 
 static bool createConnection()
 {

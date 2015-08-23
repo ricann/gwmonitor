@@ -1,12 +1,5 @@
 #include "infodialog.h"
 #include "ui_infodialog.h"
-#include <QDebug>
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QPixmap>
-#include <QMap>
-#include "plotdialog.h"
-
 
 InfoDialog::InfoDialog(int index, double lon, double lat, QWidget *parent):
     QDialog(parent),

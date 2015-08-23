@@ -1,8 +1,7 @@
 #ifndef LUAGW_H
 #define LUAGW_H
 
-#include <QWidget>
-#include <QProcess>
+#include "commoninc_qt.h"
 
 class LuaGw : public QWidget
 {

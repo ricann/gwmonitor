@@ -4,20 +4,9 @@ using namespace std;
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <string.h>
+
 #include "dataAnalysis.h"
 
-#include <QCoreApplication>
-#include <QTextCodec>
-#include <QString>
-#include <QMap>
-#include <QDebug>
-#include <QByteArray>
-#include <QSqlDatabase>
-#include <QSqlQuery>
-
-#include <map>
-#include <fstream>
 
 #ifndef LENGTH_ND
 #define LENGTH_ND 22

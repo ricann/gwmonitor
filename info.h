@@ -1,8 +1,8 @@
 #ifndef INFO_H
 #define INFO_H
 
-#include <QObject>
-#include <QTimer>
+#include "commoninc_qt.h"
+#include <assert.h>
 
 class Info : public QObject
 {

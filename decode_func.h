@@ -1,13 +1,16 @@
 #ifndef DECODE_FUNC_H
 #define DECODE_FUNC_H
 
-#include <QObject>
-#include <QThread>
-#include <QTimer>
-#include <QUdpSocket>
-
+#include "commoninc_qt.h"
+#include "commoninc_std.h"
 #include "externvar.h"
 #include "raptorcode.h"
+#include "ffmpeg.h"
+#include <iostream>
+
+using namespace std;
+
+extern FFmpeg *ffmpeg;
 
 /*
 QObject的子对象必须在创建其parent的线程中创建。

@@ -1,6 +1,5 @@
 #include "process.h"
 #include "ui_process.h"
-#include <QtGui>
 
 Process::Process(QWidget *parent) :
     QDialog(parent),

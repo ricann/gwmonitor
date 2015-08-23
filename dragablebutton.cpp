@@ -1,9 +1,4 @@
 #include "dragablebutton.h"
-#include <QApplication>
-#include <QMimeData>
-#include <QDrag>
-#include <QMouseEvent>
-#include <QDebug>
 
 DragableButton::DragableButton(QWidget *parent)
     :QPushButton(parent)

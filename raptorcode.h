@@ -1,6 +1,7 @@
 #ifndef RAPTORCODE_H
 #define RAPTORCODE_H
 
+#include "commoninc_std.h"
 #include "matrix.h"
 
 //ricann 20150823

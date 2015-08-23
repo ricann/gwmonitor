@@ -1,7 +1,7 @@
 #ifndef POWER_H
 #define POWER_H
 
-#include <QWidget>
+#include "commoninc_qt.h"
 
 class Power : public QWidget
 {

@@ -1,8 +1,7 @@
 #ifndef DATADIALOG_H
 #define DATADIALOG_H
 
-#include <QDialog>
-#include <QDate>
+#include "commoninc_qt.h"
 
 class QSqlTableModel;
 

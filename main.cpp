@@ -1,8 +1,6 @@
 #include "mainwindow.h"
-#include <QApplication>
-#include <QTextCodec>
-#include <QtGui>
-#include <connection.h>
+#include "connection.h"
+
 #undef main
 
 int main(int argc, char *argv[])

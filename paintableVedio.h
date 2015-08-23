@@ -1,13 +1,9 @@
 #ifndef PAINTABLEVEDIO_H
 #define PAINTABLEVEDIO_H
 
-
-#include <QLabel>
-#include <QPoint>
-#include<vector>
+#include "commoninc_qt.h"
 
 using namespace std;
-
 
 //线段
 typedef struct myLine{

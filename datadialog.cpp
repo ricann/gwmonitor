@@ -3,19 +3,6 @@
 
 #include "dataAnalysis.h"
 
-#include <QSqlDatabase>
-#include <QSqlQueryModel>
-#include <QSqlTableModel>
-#include <QSqlRelationalTableModel>
-#include <QTableView>
-#include <QDebug>
-#include <QMessageBox>
-#include <QSqlError>
-#include <QSqlQuery>
-#include <QComboBox>
-#include <QTableView>
-
-#include <QTextCodec>
 DataDialog::DataDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DataDialog)

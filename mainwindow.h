@@ -1,18 +1,14 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QDebug>
-#include <QDialog>
-#include <QWidget>
-#include <QTreeWidget>
+#include <commoninc_qt.h>
+#include <commoninc_std.h>
 
-
-#include <QtNetwork>
-#include <QEventLoop>
-#include <QLabel>
-#include <QImage>
-#include <QDateEdit>
-
+#include "info.h"
+#include "datadialog.h"
+#include "dataAnalysis.h"
+#include "qcustomplot.h"
+#include "videoControl.h"
 #include "raptorcode.h"
 #include "externvar.h"
 #include "decode_func.h"
@@ -21,6 +17,13 @@
 #include "ffmpeg.h"
 #include "videoControl.h"
 #include "resetTime.h"
+#include "process.h"
+
+#include <Winsock2.h>
+#include <list>
+#include <fstream>
+
+using namespace std;
 
 extern "C"{
     #include <libavcodec/avcodec.h>
@@ -36,12 +39,6 @@ extern "C"{
     #include <SDL_main.h>
 
 }
-
-#include <QMainWindow>
-#include <QMap>
-#include <QVector>
-#include <qcustomplot.h>
-#include "process.h"
 
 #define MAX_IF_COUNT 4
 #define MAX_SINK_COUNT 10

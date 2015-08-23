@@ -1,10 +1,7 @@
-#include <QDebug>
+
 #include "info.h"
 #include "infodialog.h"
-#include <QTimer>
-#include <assert.h>
-#include <QSqlDatabase>
-#include <QSqlQuery>
+
 
 Info::Info(QObject *parent) :
     QObject(parent)

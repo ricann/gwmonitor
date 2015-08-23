@@ -1,8 +1,8 @@
 #ifndef DRAGABLEBUTTON_H
 #define DRAGABLEBUTTON_H
 
-#include <QWidget>
-#include <QPushButton>
+#include "commoninc_qt.h"
+
 class DragableButton : public QPushButton
 {
     Q_OBJECT

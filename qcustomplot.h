@@ -31,32 +31,10 @@
 #endif
 #define QT_DISABLE_DEPRECATED_BEFORE QT_VERSION_CHECK(0, 0, 0)
 
-#include <QObject>
-#include <QWeakPointer>
-#include <QWidget>
-#include <QPainter>
-#include <QPaintEvent>
-#include <QMouseEvent>
-#include <QPixmap>
-#include <QVector>
-#include <QString>
-#include <QDateTime>
-#include <QMultiMap>
-#include <QFlags>
-#include <QDebug>
-#include <QVector2D>
-#include <QStack>
-#include <QCache>
-#include <QMargins>
+#include "commoninc_qt.h"
+
 #include <qmath.h>
 #include <limits>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#  include <qnumeric.h>
-#  include <QPrinter>
-#else
-#  include <QtNumeric>
-#  include <QPrinter>
-#endif
 
 class QCPPainter;
 class QCustomPlot;

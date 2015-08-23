@@ -1,13 +1,4 @@
 #include "decode_func.h"
-#include "ffmpeg.h"
-#include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-using namespace std;
-
-extern FFmpeg *ffmpeg;
 
 Object::Object(const int cameraNo):camera_no(cameraNo){
 

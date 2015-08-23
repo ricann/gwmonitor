@@ -1,11 +1,11 @@
 #ifndef VIDEOCONTROL_H
 #define VIDEOCONTROL_H
-#include <QDialog>
-#include <QtNetwork>
-#include <QCloseEvent>
+
+#include <commoninc_qt.h>
+#include <commoninc_std.h>
 
 namespace Ui {
-class VideoControl;
+    class VideoControl;
 }
 
 class VideoControl : public QDialog

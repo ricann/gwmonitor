@@ -1,9 +1,5 @@
 #include "ffmpeg.h"
-#include <QDebug>
-#include <QDir>
-#include <QCoreApplication>
-#include <QMessageBox>
-#include <QTimer>
+
 
 FFmpeg::FFmpeg(QWidget *parent)
     : QWidget(parent)

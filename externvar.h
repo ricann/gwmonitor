@@ -1,13 +1,12 @@
 #ifndef EXTERNVAR_H
 #define EXTERNVAR_H
 
+#include "commoninc_qt.h"
 #include <Winsock2.h>
 #include <list>
-#include <QMutex>
-#include <QSemaphore>
 #include <iostream>
-using namespace std;
 
+using namespace std;
 
 extern "C"{
     #include <libavcodec/avcodec.h>

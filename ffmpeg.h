@@ -1,8 +1,7 @@
 #ifndef FFMPEG_H
 #define FFMPEG_H
 
-#include <QWidget>
-#include <QProcess>
+#include "commoninc_qt.h"
 
 class FFmpeg : public QWidget
 {

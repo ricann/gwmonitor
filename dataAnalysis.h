@@ -1,6 +1,10 @@
 #ifndef DATAANALYSIS_H
 #define DATAANALYSIS_H
 
+#include "commoninc_qt.h"
+#include <map>
+#include <fstream>
+
 /**
  * struct to resotre information on contaminant of realtime-data-msg
  */

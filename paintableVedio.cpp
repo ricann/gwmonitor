@@ -1,11 +1,5 @@
 
 #include "paintableVedio.h"
-#include <QString>
-#include <QMessageBox>
-#include <QPainter>
-#include <QPen>
-#include <QMouseEvent>
-#include <QDebug>
 
 
 PaintableVedio::PaintableVedio(QWidget *parent)

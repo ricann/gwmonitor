@@ -1,8 +1,5 @@
 #include "plotdialog.h"
 #include "ui_plotdialog.h"
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QVector>
 
 plotDialog::plotDialog(int index, QWidget *parent) :
     QDialog(parent),

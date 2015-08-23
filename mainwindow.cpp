@@ -2,39 +2,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QWebFrame>
-#include <QWebView>
-#include <QWebPage>
-#include <QWidget>
-#include <datadialog.h>
-#include "videoControl.h"
-
-#include <QWebSecurityOrigin>
-#include <QUdpSocket>
-#include <QDebug>
-#include <QTimer>
-#include <QtNetwork>
-#include <Winsock2.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QVector>
-#include <time.h>
-#include <list>
-#include <fstream>
-
-#include "info.h"
-#include "dataAnalysis.h"
-#include "qcustomplot.h"
-
-#include <QtGui>
-#include "Winsock2.h"
-
-#include <QPixmap>
-
-using namespace std;
-
 QList<QPoint> points;
 QList<QPoint> fourPointsWin[4];
 QList<QPoint> *changedPoints = NULL;

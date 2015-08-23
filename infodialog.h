@@ -1,9 +1,9 @@
 #ifndef INFODIALOG_H
 #define INFODIALOG_H
 
-#include <QDialog>
-#include <QVector>
+#include "commoninc_qt.h"
 #include "qcustomplot.h"
+#include "plotdialog.h"
 
 namespace Ui {
 class InfoDialog;

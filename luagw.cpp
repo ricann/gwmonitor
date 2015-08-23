@@ -1,7 +1,4 @@
 #include "luagw.h"
-#include <QDebug>
-#include <QCoreApplication>
-#include <QMessageBox>
 
 LuaGw::LuaGw(QWidget *parent)
     : QWidget(parent)

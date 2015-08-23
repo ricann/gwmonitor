@@ -1,8 +1,7 @@
 #ifndef PLOTDIALOG_H
 #define PLOTDIALOG_H
 
-#include <QDialog>
-#include <QVector>
+#include "commoninc_qt.h"
 #include "qcustomplot.h"
 
 namespace Ui {

@@ -1,11 +1,12 @@
 #ifndef DISPLAY_FUNC_H
 #define DISPLAY_FUNC_H
 
+#include "commoninc_qt.h"
+#include "commoninc_std.h"
 #include "externvar.h"
-#include <QThread>
-#include <QTimer>
+
 #include <iostream>
-#include <string.h>
+
 using namespace std;
 
 

@@ -1,5 +1,4 @@
 
-#include "stdio.h"
 #include "raptorcode.h"
 
 static void trip(int K, int X, triple trp);

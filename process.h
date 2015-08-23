@@ -1,12 +1,12 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include <QDialog>
+#include "commoninc_qt.h"
 
 class QProcess;
 
 namespace Ui {
-class Process;
+    class Process;
 }
 
 class Process : public QDialog

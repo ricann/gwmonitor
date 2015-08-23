@@ -1,9 +1,8 @@
 #ifndef RESETTIME_H
 #define RESETTIME_H
 
-#include <QThread>
-#include <QTime>
-#include <QtNetwork>
+#include <commoninc_qt.h>
+#include <commoninc_std.h>
 
 class ResetTimeThread:public QThread{
 Q_OBJECT

@@ -1,7 +1,4 @@
-#include <QTimer>
-#include <QPainter>
-#include <QPaintEvent>
-#include <QDebug>
+
 #include "power.h"
 
 Power::Power(QWidget *parent)

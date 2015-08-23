@@ -58,7 +58,9 @@ HEADERS  += mainwindow.h \
     dragablebutton.h \
     dropableplot.h \
     power.h \
-    ffmpeg.h
+    ffmpeg.h \
+    commoninc_qt.h \
+    commoninc_std.h
 
 FORMS    += mainwindow.ui \
     datadialog.ui \
