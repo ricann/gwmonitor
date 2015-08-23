@@ -8,7 +8,6 @@ INPUT(
 ./debug\qcustomplot.o
 ./debug\plotdialog.o
 ./debug\process.o
-./debug\gilbert.o
 ./debug\display_func.o
 ./debug\decode_func.o
 ./debug\raptorcode.o

@@ -9,16 +9,6 @@
 #include "externvar.h"
 #include "raptorcode.h"
 
-#ifdef GILBERT_DEBUG
-#include "gilbert.h"
-#endif
-
-//#define MAX_WINDOW_SIZE 20
-//#define GIL_PERIOD 1
-//#define NI 1
-//#define HI 66
-
-
 /*
 QObject的子对象必须在创建其parent的线程中创建。
 这意味着，不能把QThread对象作为parent传递给创建在线程中的对象，
@@ -66,32 +56,6 @@ private:
 
     FILE *store_v;
     FILE *record_v;
-
-#ifdef GILBERT_DEBUG
-    long cnt_get;
-    long pre_slice_no;
-    long get_slice_no;
-    long slice_no_pre;
-
-    char fb_data[10];
-
-    int L_b;
-    int T_next;
-    int cursor;
-    int state_lost[NI];
-    int n1[MAX_WINDOW_SIZE],
-        n2[MAX_WINDOW_SIZE],
-        n3[MAX_WINDOW_SIZE],
-        n4[MAX_WINDOW_SIZE];
-
-    double gil;
-    double ber;
-    double N1, N2, N3, N4;
-
-    FILE * gil_sml;
-    struct EBR_data *EBR_data_addr;
-
-#endif
 
 signals:
     void dataReady_obj(const int);

@@ -224,11 +224,6 @@ QByteArray video_frag;
 char *file_v;
 QStringList::iterator ii;
 
-
-float P_b = (float)0.001;
-float global_PB;
-
-
 int yuv_debug,
     video_debug;
 void config_read(int* yuv_debug, int* video_debug);

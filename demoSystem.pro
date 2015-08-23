@@ -23,7 +23,6 @@ SOURCES += main.cpp\
     qcustomplot.cpp \
     plotdialog.cpp \
     process.cpp \
-    gilbert.cpp \
     display_func.cpp \
     decode_func.cpp \
     raptorcode.cpp \
@@ -72,7 +71,6 @@ RESOURCES += \
     final.qrc
 
 LIBS += -lWs2_32
-win32: LIBS += -L$$PWD/ -lHCNetSDK
 
 INCLUDEPATH +=  SDL/include
 LIBS += SDL/lib/libSDL.dll.a

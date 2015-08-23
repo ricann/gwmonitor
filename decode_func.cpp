@@ -33,34 +33,6 @@ Object::Object(const int cameraNo):camera_no(cameraNo){
 
     groupBroadcast = new QUdpSocket();
 
-#ifdef GILBERT_DEBUG
-
-    L_b = 100;
-    //pre_slice_no = 1;
-    //get_slice_no = 0;
-    //n1[MAX_WINDOW_SIZE] = {0},
-    //n2[MAX_WINDOW_SIZE] = {0},
-    //n3[MAX_WINDOW_SIZE] = {0},
-    //n4[MAX_WINDOW_SIZE] = {0};
-
-    cursor = 0;
-    cnt_get = 0;
-
-
-    EBR_data_addr = (struct EBR_data *)malloc(sizeof(struct EBR_data));
-
-    char gil_name[30];
-    memset(gil_name, 0, 30);
-    strcpy(gil_name, ".//log//gil_sml_");
-    strcat(gil_name, fileName);
-    strcat(gil_name, ".txt");
-    gil_sml = fopen(gil_name, "w");
-
-    calcute(EBR_data_addr, P_b, L_b);
-    memset(state_lost,0,NI*sizeof(int));
-
-#endif
-
     raptor_K_temp = 0;
     raptor_R_temp = 0;
     raptor_N_temp = 0;
@@ -196,36 +168,6 @@ void Object::decode(){
     int data_len;
     memcpy(&data_len, tmp_buf_total+T_cur+sizeof(Frame_header), 4);
     data_len = ntohl(data_len);
-
-
-
-#ifdef GILBERT_DEBUG
-    //****** Gilbert仿真 ******
-
-    int packet_len = (data_len+1)*T_cur + sizeof(int) + sizeof(Frame_header);
-
-    int lostflag=0;
-
-    for(int ni = 0; ni < NI; ni++)
-    {
-        state_lost[ni] = gilbert(EBR_data_addr, 8*packet_len, gil_sml,
-                                 state_lost[ni], frame_header->slice_no);
-
-        if (state_lost[ni] == 1)
-        {
-            lostflag = 1;
-            break;
-        }
-    }
-
-    if(lostflag == 1)
-    {
-        printf("package lost....\n");
-        return;    //模拟丢包
-    }
-
-//        cnt_get++;
-#endif
 
     for(int i = 0; i < data_len + 1; i++)
     {

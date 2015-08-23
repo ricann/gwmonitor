@@ -22,10 +22,6 @@
 #include "videoControl.h"
 #include "resetTime.h"
 
-#ifdef GILBERT_DEBUG
-#include "gilbert.h"
-#endif
-
 extern "C"{
     #include <libavcodec/avcodec.h>
     #include <libavdevice/avdevice.h>
