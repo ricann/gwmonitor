@@ -1,4 +1,4 @@
-using namespace std;
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -28,12 +28,13 @@ using namespace std;
 #include "dataAnalysis.h"
 #include "qcustomplot.h"
 
-
 #include <QtGui>
-#include "Windows.h"
+#include "Winsock2.h"
 #include "HCNetSDK.h"
 
 #include <QPixmap>
+
+using namespace std;
 
 QList<QPoint> points;
 QList<QPoint> fourPointsWin[4];

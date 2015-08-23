@@ -1,5 +1,5 @@
-#include <QDebug>
 #include "display_func.h"
+#include <QDebug>
 #include <qpoint.h>
 
 extern QList<QPoint> points;//存放SDL画线的点的集合

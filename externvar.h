@@ -1,7 +1,7 @@
 #ifndef EXTERNVAR_H
 #define EXTERNVAR_H
 
-#include <windows.h>
+#include <Winsock2.h>
 #include <list>
 #include <QMutex>
 #include <QSemaphore>

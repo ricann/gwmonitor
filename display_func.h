@@ -2,7 +2,6 @@
 #define DISPLAY_FUNC_H
 
 #include "externvar.h"
-#include <windows.h>
 #include <QThread>
 #include <QTimer>
 #include <iostream>

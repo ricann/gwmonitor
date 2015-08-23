@@ -13,11 +13,6 @@
 #include "gilbert.h"
 #endif
 
-//ricann 20150823
-typedef	unsigned char uint8;
-typedef unsigned short uint16;
-typedef	unsigned int uint32;
-
 //#define MAX_WINDOW_SIZE 20
 //#define GIL_PERIOD 1
 //#define NI 1

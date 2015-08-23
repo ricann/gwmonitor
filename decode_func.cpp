@@ -1,11 +1,11 @@
 #include "decode_func.h"
 #include "ffmpeg.h"
 #include <iostream>
-using namespace std;
 #include <stdlib.h>
 #include <stdio.h>
-#include <QDebug>
 #include <string.h>
+
+using namespace std;
 
 extern FFmpeg *ffmpeg;
 
@@ -77,8 +77,6 @@ Object::Object(const int cameraNo):camera_no(cameraNo){
 
 //    timer = new QTimer(this);
 //    connect(timer, SIGNAL(timeout()), this, SLOT(deal_timeout()));
-
-//    qDebug()<<"decodeObject_"<<camera_no<<"-ID = "<<QThread::currentThreadId();
 }
 
 Object::~Object(){
@@ -185,8 +183,6 @@ void Object::decode(){
     default:
         break;
     }
-
-//    qDebug()<<"data fetching...."<<endl;
 
     frame_header = (Frame_header*)malloc(sizeof(Frame_header));
     memcpy((char *)frame_header, tmp_buf_total, sizeof(Frame_header));
@@ -911,7 +907,6 @@ void Object::decode(){
 
 
 DecodeThread::DecodeThread(const int cameraNo):camera_no(cameraNo){
-//    qDebug()<<"decodeThread_"<<cameraNo<<"-ID = "<<currentThreadId();
 }
 
 DecodeThread::~DecodeThread(){
