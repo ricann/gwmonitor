@@ -33,7 +33,6 @@ FFmpeg *ffmpeg;
 /************************************************/
 
 /************************************************/
-static int is_begin = 0;
 int play_or_not[MAX_CAMERA_NUM] = {0};
 
 int video_allowed = 0;
@@ -230,13 +229,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(w,SIGNAL(dlgReturn(int)),this,SLOT(setShowFlag(int)));//地图切换按钮
 
     vc = new VideoControl(this);//视频控制台界面
-    connect(this, SIGNAL(freshCameraList()), vc, SIGNAL(freshCameraList()));
-    connect(this, SIGNAL(freshPowerList(int, char,char,char,char)), vc, SIGNAL(freshPowerList(int, char,char,char,char)));
+    connect(this, SIGNAL(freshCameraList()),
+            vc, SIGNAL(freshCameraList()));
+    connect(this, SIGNAL(freshPowerList(int, char,char,char,char)),
+            vc, SIGNAL(freshPowerList(int, char,char,char,char)));
     vc->hide();
 
     connect(this, SIGNAL(pointsReady(int)), this, SLOT(sendPoints(int)));
-    connect(this, SIGNAL(playnow()), this, SLOT(begin()));
-    connect(this, SIGNAL(exitnow()), this, SLOT(all_stop()));    
+
 
     connect(ui->map_TabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabIndexChanged()));//获取当前tab页面index
     connect(ui->treeWidget_plot,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SLOT(treeItemClickSlot(QTreeWidgetItem*,int)));//获取选中标量
@@ -247,6 +247,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     info = new Info(this);
 
+    /*--------------指定端口8888接收视频数据--------------*/
+    SDL_init();
+    udpSocket_video = new QUdpSocket(this);
+    udpSocket_video->bind(8888);
+    connect(udpSocket_video, SIGNAL(readyRead()),this, SLOT(recv_real_videodata()));
 
     /*--------------指定端口7778接收标量数据--------------*/
     receiver = new QUdpSocket(this);
@@ -290,9 +295,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     initMap();
     test();
-
-
-    emit playnow();
 
     ////////*-----------回放动图加载设置-----------*/////////
     QMovie *movie=new QMovie(":/img/replay.gif");
@@ -535,7 +537,7 @@ void MainWindow::setupDemo(QCustomPlot *customPlot)
 
 MainWindow::~MainWindow()
 {
-    emit exitnow();
+    all_stop();
     delete ui;
 }
 
@@ -1419,22 +1421,6 @@ void config_read(int* yuv_debug, int* video_debug)
     fclose(fd);
 }
 
-void MainWindow::begin()
-{
-    /*************************************/
-    if(is_begin == 0)
-    {
-        SDL_init();
-
-        udpSocket_video = new QUdpSocket(this);
-        udpSocket_video->bind(8888);
-        connect(udpSocket_video, SIGNAL(readyRead()),this, SLOT(recv_real_videodata()));
-
-        is_begin = 1;
-    }
-    /*************************************/
-}
-
 void MainWindow::all_stop()
 {
 
@@ -1481,11 +1467,7 @@ void MainWindow::all_stop()
     disconnect(this, SIGNAL(resetWinHandle2(const DisplayPara)), my_show_thread2, SIGNAL(resetWinPara(const DisplayPara)));
     disconnect(this, SIGNAL(resetWinHandle3(const DisplayPara)), my_show_thread3, SIGNAL(resetWinPara(const DisplayPara)));
 
-    if(is_begin)
-    {
-        cout<<"udpSocket_video disconnected!!!!!!!!!"<<endl;
-        disconnect(udpSocket_video, SIGNAL(readyRead()),this, SLOT(recv_real_videodata()));
-    }
+    disconnect(udpSocket_video, SIGNAL(readyRead()),this, SLOT(recv_real_videodata()));
 
     my_deco_thread0->terminate();
     my_deco_thread1->terminate();

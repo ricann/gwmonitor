@@ -129,8 +129,6 @@ public:
 
 signals:
     void newsCome(int,int);
-    void exitnow();
-    void playnow();
     void pointsReady(int);
     void freshCameraList();
     void freshPowerList(int,char,char,char,char);
@@ -195,7 +193,6 @@ private slots:
     void setGPSState();
 
 /**********************************/
-    void begin();
     void all_stop();
     void recv_real_videodata();
     void recv_local_videodata();
@@ -324,12 +321,6 @@ private:
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);
 };
-
-#define MAX_WINDOW_SIZE 20
-#define GIL_PERIOD 1
-#define NI 1
-#define HI 66
-
 
 #endif // MAINWINDOW_H
 
