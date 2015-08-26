@@ -23,8 +23,6 @@ SOURCES += main.cpp\
     qcustomplot.cpp \
     plotdialog.cpp \
     process.cpp \
-    display_func.cpp \
-    decode_func.cpp \
     raptorcode.cpp \
     matrix.cpp \
     paintableVedio.cpp \
@@ -34,7 +32,10 @@ SOURCES += main.cpp\
     dragablebutton.cpp \
     dropableplot.cpp \
     power.cpp \
-    ffmpeg.cpp
+    ffmpeg.cpp \
+    video_recv.cpp \
+    video_decode.cpp \
+    video_show.cpp
 
 HEADERS  += mainwindow.h \
     datadialog.h \
@@ -46,8 +47,6 @@ HEADERS  += mainwindow.h \
     process.h \
     gilbert.h \
     externvar.h \
-    display_func.h \
-    decode_func.h \
     raptorcode.h \
     matrix.h \
     paintableVedio.h \
@@ -59,7 +58,10 @@ HEADERS  += mainwindow.h \
     power.h \
     ffmpeg.h \
     commoninc_qt.h \
-    commoninc_std.h
+    commoninc_std.h \
+    video_recv.h \
+    video_decode.h \
+    video_show.h
 
 FORMS    += mainwindow.ui \
     datadialog.ui \

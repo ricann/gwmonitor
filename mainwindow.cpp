@@ -1,4 +1,3 @@
-
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -26,17 +25,10 @@ QMap<int,QString> treeIntNode;
 
 int flag = 0;
 
-QUdpSocket *udpSocket_video;
-
-/************ffmpeg global variable**************/
-FFmpeg *ffmpeg;
-/************************************************/
-
-/************************************************/
 int play_or_not[MAX_CAMERA_NUM] = {0};
 
 int video_allowed = 0;
-int video_sure=0;
+int video_sure = 0;
 
 int map_allowed=0;
 int draw_allowed=0;
@@ -44,113 +36,6 @@ int plot_finished_flag=1;
 
 enum {LENGTH_CP = 4};
 QCustomPlot* cp[LENGTH_CP];
-
-unsigned int nextPutFrame0(0);
-unsigned int nextGetFrame0(0);
-unsigned int nextPutFrame1(0);
-unsigned int nextGetFrame1(0);
-unsigned int nextPutFrame2(0);
-unsigned int nextGetFrame2(0);
-unsigned int nextPutFrame3(0);
-unsigned int nextGetFrame3(0);
-unsigned int nextPutFrame4(0);
-unsigned int nextGetFrame4(0);
-unsigned int nextPutFrame5(0);
-unsigned int nextGetFrame5(0);
-unsigned int nextPutFrame6(0);
-unsigned int nextGetFrame6(0);
-unsigned int nextPutFrame7(0);
-unsigned int nextGetFrame7(0);
-unsigned int nextPutFrame8(0);
-unsigned int nextGetFrame8(0);
-unsigned int nextPutFrame9(0);
-unsigned int nextGetFrame9(0);
-
-QSemaphore fullFrame0(0);
-QSemaphore emptyFrame0(MAX_BUF_SIZE);
-QSemaphore fullFrame1(0);
-QSemaphore emptyFrame1(MAX_BUF_SIZE);
-QSemaphore fullFrame2(0);
-QSemaphore emptyFrame2(MAX_BUF_SIZE);
-QSemaphore fullFrame3(0);
-QSemaphore emptyFrame3(MAX_BUF_SIZE);
-QSemaphore fullFrame4(0);
-QSemaphore emptyFrame4(MAX_BUF_SIZE);
-QSemaphore fullFrame5(0);
-QSemaphore emptyFrame5(MAX_BUF_SIZE);
-QSemaphore fullFrame6(0);
-QSemaphore emptyFrame6(MAX_BUF_SIZE);
-QSemaphore fullFrame7(0);
-QSemaphore emptyFrame7(MAX_BUF_SIZE);
-QSemaphore fullFrame8(0);
-QSemaphore emptyFrame8(MAX_BUF_SIZE);
-QSemaphore fullFrame9(0);
-QSemaphore emptyFrame9(MAX_BUF_SIZE);
-
-
-unsigned int nextPutShow0(0);
-unsigned int nextGetShow0(0);
-unsigned int nextPutShow1(0);
-unsigned int nextGetShow1(0);
-unsigned int nextPutShow2(0);
-unsigned int nextGetShow2(0);
-unsigned int nextPutShow3(0);
-unsigned int nextGetShow3(0);
-unsigned int nextPutShow4(0);
-unsigned int nextGetShow4(0);
-unsigned int nextPutShow5(0);
-unsigned int nextGetShow5(0);
-unsigned int nextPutShow6(0);
-unsigned int nextGetShow6(0);
-unsigned int nextPutShow7(0);
-unsigned int nextGetShow7(0);
-unsigned int nextPutShow8(0);
-unsigned int nextGetShow8(0);
-unsigned int nextPutShow9(0);
-unsigned int nextGetShow9(0);
-
-QSemaphore fullShow0(0);
-QSemaphore emptyShow0(MAX_BUF_SIZE);
-QSemaphore fullShow1(0);
-QSemaphore emptyShow1(MAX_BUF_SIZE);
-QSemaphore fullShow2(0);
-QSemaphore emptyShow2(MAX_BUF_SIZE);
-QSemaphore fullShow3(0);
-QSemaphore emptyShow3(MAX_BUF_SIZE);
-QSemaphore fullShow4(0);
-QSemaphore emptyShow4(MAX_BUF_SIZE);
-QSemaphore fullShow5(0);
-QSemaphore emptyShow5(MAX_BUF_SIZE);
-QSemaphore fullShow6(0);
-QSemaphore emptyShow6(MAX_BUF_SIZE);
-QSemaphore fullShow7(0);
-QSemaphore emptyShow7(MAX_BUF_SIZE);
-QSemaphore fullShow8(0);
-QSemaphore emptyShow8(MAX_BUF_SIZE);
-QSemaphore fullShow9(0);
-QSemaphore emptyShow9(MAX_BUF_SIZE);
-
-char frameBuf0[MAX_BUF_SIZE][MAXLINE];
-char frameBuf1[MAX_BUF_SIZE][MAXLINE];
-char frameBuf2[MAX_BUF_SIZE][MAXLINE];
-char frameBuf3[MAX_BUF_SIZE][MAXLINE];
-char frameBuf4[MAX_BUF_SIZE][MAXLINE];
-char frameBuf5[MAX_BUF_SIZE][MAXLINE];
-char frameBuf6[MAX_BUF_SIZE][MAXLINE];
-char frameBuf7[MAX_BUF_SIZE][MAXLINE];
-char frameBuf8[MAX_BUF_SIZE][MAXLINE];
-char frameBuf9[MAX_BUF_SIZE][MAXLINE];
-
-ShowNode showBuf0[MAX_BUF_SIZE];
-ShowNode showBuf1[MAX_BUF_SIZE];
-ShowNode showBuf2[MAX_BUF_SIZE];
-ShowNode showBuf3[MAX_BUF_SIZE];
-ShowNode showBuf4[MAX_BUF_SIZE];
-ShowNode showBuf5[MAX_BUF_SIZE];
-ShowNode showBuf6[MAX_BUF_SIZE];
-ShowNode showBuf7[MAX_BUF_SIZE];
-ShowNode showBuf8[MAX_BUF_SIZE];
-ShowNode showBuf9[MAX_BUF_SIZE];
 
 QMutex mutex_avcodec;
 
@@ -207,18 +92,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    //ui->widget->setAttribute(Qt::WA_TranslucentBackground, true);//设置透明2-窗体标题栏不透明,背景透明
+
     luaGw = new LuaGw(this); //标量转发程序
-    ffmpeg = new FFmpeg(this);//视频格式转换程序
+
+    SDL_init();
 
     resetTime = new ResetTimeThread(); //定时关闭视频传输线程
     resetTime->start();
-    /****************************************/
-    config_read(&yuv_debug, &video_debug);
 
-//    connect(ui->hSlider,SIGNAL(valueChanged(int)),this,SLOT(on_Slider_valueChanged(int)));
-//    ui->hSlider->setVisible(false);
-    /****************************************/
+    config_read(&yuv_debug, &video_debug);
 
     connect(this,SIGNAL(newsCome(int,int)),this,SLOT(refreshPlot(int,int)));//有数据来到，刷新折线图
 
@@ -237,21 +119,20 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(this, SIGNAL(pointsReady(int)), this, SLOT(sendPoints(int)));
 
-
-    connect(ui->map_TabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabIndexChanged()));//获取当前tab页面index
-    connect(ui->treeWidget_plot,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SLOT(treeItemClickSlot(QTreeWidgetItem*,int)));//获取选中标量
+    //获取当前tab页面index
+    connect(ui->map_TabWidget, SIGNAL(currentChanged(int)),
+            this, SLOT(tabIndexChanged()));
+    //获取选中标量
+    connect(ui->treeWidget_plot, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
+            this, SLOT(treeItemClickSlot(QTreeWidgetItem*,int)));
     //每次选中视频节点则触发播放按钮 add at 15/07/28
-    connect(ui->treeWidget,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SLOT(call_on_treeBtn_clicked(QTreeWidgetItem*,int)));//获取选中视频节点
+    //获取选中视频节点
+    connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
+            this, SLOT(call_on_treeBtn_clicked(QTreeWidgetItem*,int)));
 
     ui->video->installEventFilter(this);
 
     info = new Info(this);
-
-    /*--------------指定端口8888接收视频数据--------------*/
-    SDL_init();
-    udpSocket_video = new QUdpSocket(this);
-    udpSocket_video->bind(8888);
-    connect(udpSocket_video, SIGNAL(readyRead()),this, SLOT(recv_real_videodata()));
 
     /*--------------指定端口7778接收标量数据--------------*/
     receiver = new QUdpSocket(this);
@@ -353,82 +234,17 @@ MainWindow::MainWindow(QWidget *parent) :
     end = ui->dateEdit_end;
 
     /*******************视频部分*********************/
-    my_deco_thread0 = new DecodeThread(1);
-    my_deco_thread1 = new DecodeThread(2);
-    my_deco_thread2 = new DecodeThread(3);
-    my_deco_thread3 = new DecodeThread(4);
-    my_deco_thread4 = new DecodeThread(5);
-    my_deco_thread5 = new DecodeThread(6);
-    my_deco_thread6 = new DecodeThread(7);
-    my_deco_thread7 = new DecodeThread(8);
-    my_deco_thread8 = new DecodeThread(9);
-    my_deco_thread9 = new DecodeThread(10);
-
-
-    connect(this, SIGNAL(frameReady0()), my_deco_thread0, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(frameReady1()), my_deco_thread1, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(frameReady2()), my_deco_thread2, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(frameReady3()), my_deco_thread3, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(frameReady4()), my_deco_thread4, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(frameReady5()), my_deco_thread5, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(frameReady6()), my_deco_thread6, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(frameReady7()), my_deco_thread7, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(frameReady8()), my_deco_thread8, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(frameReady9()), my_deco_thread9, SIGNAL(dataArrived()));
-
-    connect(my_deco_thread0, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    connect(my_deco_thread1, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    connect(my_deco_thread2, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    connect(my_deco_thread3, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    connect(my_deco_thread4, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    connect(my_deco_thread5, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    connect(my_deco_thread6, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    connect(my_deco_thread7, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    connect(my_deco_thread8, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    connect(my_deco_thread9, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-
-
-    (*my_deco_thread0).start();
-    (*my_deco_thread1).start();
-    (*my_deco_thread2).start();
-    (*my_deco_thread3).start();
-    (*my_deco_thread4).start();
-    (*my_deco_thread5).start();
-    (*my_deco_thread6).start();
-    (*my_deco_thread7).start();
-    (*my_deco_thread8).start();
-    (*my_deco_thread9).start();
-
-
-
+    //ricann
     showPara.my_height = ui->video->height();
     showPara.my_width = ui->video->width();
 
-    my_show_thread0 = new ShowThread(showPara);
-    my_show_thread1 = new ShowThread(showPara);
-    my_show_thread2 = new ShowThread(showPara);
-    my_show_thread3 = new ShowThread(showPara);
-
-    connect(this, SIGNAL(showVideo0()), my_show_thread0, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(showVideo1()), my_show_thread1, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(showVideo2()), my_show_thread2, SIGNAL(dataArrived()));
-    connect(this, SIGNAL(showVideo3()), my_show_thread3, SIGNAL(dataArrived()));
-
-    connect(this, SIGNAL(resetWinCame0(const int,const int)), my_show_thread0, SIGNAL(resetCamera(const int,const int)));
-    connect(this, SIGNAL(resetWinCame1(const int,const int)), my_show_thread1, SIGNAL(resetCamera(const int,const int)));
-    connect(this, SIGNAL(resetWinCame2(const int,const int)), my_show_thread2, SIGNAL(resetCamera(const int,const int)));
-    connect(this, SIGNAL(resetWinCame3(const int,const int)), my_show_thread3, SIGNAL(resetCamera(const int,const int)));
-
-    connect(this, SIGNAL(resetWinHandle0(const DisplayPara)), my_show_thread0, SIGNAL(resetWinPara(const DisplayPara)));
-    connect(this, SIGNAL(resetWinHandle1(const DisplayPara)), my_show_thread1, SIGNAL(resetWinPara(const DisplayPara)));
-    connect(this, SIGNAL(resetWinHandle2(const DisplayPara)), my_show_thread2, SIGNAL(resetWinPara(const DisplayPara)));
-    connect(this, SIGNAL(resetWinHandle3(const DisplayPara)), my_show_thread3, SIGNAL(resetWinPara(const DisplayPara)));
-
-    (*my_show_thread0).start();
-    (*my_show_thread1).start();
-    (*my_show_thread2).start();
-    (*my_show_thread3).start();
-    /****************************************/
+    recv_thread = new RecvThread();
+    decode_thread = new DecodeThread();
+    show_thread = new ShowThread(showPara);
+    (*recv_thread).start();
+    (*decode_thread).start();
+    (*show_thread).start();
+    /********************************************/
 
     int tabIndex=ui->map_TabWidget->currentIndex();
     switch(tabIndex)//判断当前Tab页面
@@ -1430,76 +1246,14 @@ void MainWindow::all_stop()
     free(frame_header_real);
     free(frame_header_local);
 
-    disconnect(this, SIGNAL(frameReady0()), my_deco_thread0, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(frameReady1()), my_deco_thread1, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(frameReady2()), my_deco_thread2, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(frameReady3()), my_deco_thread3, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(frameReady4()), my_deco_thread4, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(frameReady5()), my_deco_thread5, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(frameReady6()), my_deco_thread6, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(frameReady7()), my_deco_thread4, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(frameReady8()), my_deco_thread5, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(frameReady9()), my_deco_thread6, SIGNAL(dataArrived()));
+    recv_thread->terminate();
+    decode_thread->terminate();
+    show_thread->terminate();
 
-    disconnect(my_deco_thread0, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    disconnect(my_deco_thread1, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    disconnect(my_deco_thread2, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    disconnect(my_deco_thread3, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    disconnect(my_deco_thread4, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    disconnect(my_deco_thread5, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    disconnect(my_deco_thread6, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    disconnect(my_deco_thread7, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    disconnect(my_deco_thread8, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
-    disconnect(my_deco_thread9, SIGNAL(dataReady_deco(const int)), this, SLOT(sendShowSignal(const int)));
+    recv_thread->wait();
+    decode_thread->wait();
+    show_thread->wait();
 
-    disconnect(this, SIGNAL(showVideo0()), my_show_thread0, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(showVideo1()), my_show_thread1, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(showVideo2()), my_show_thread2, SIGNAL(dataArrived()));
-    disconnect(this, SIGNAL(showVideo3()), my_show_thread3, SIGNAL(dataArrived()));
-
-    disconnect(this, SIGNAL(resetWinCame0(const int,const int)), my_show_thread0, SIGNAL(resetCamera(const int,const int)));
-    disconnect(this, SIGNAL(resetWinCame1(const int,const int)), my_show_thread1, SIGNAL(resetCamera(const int,const int)));
-    disconnect(this, SIGNAL(resetWinCame2(const int,const int)), my_show_thread2, SIGNAL(resetCamera(const int,const int)));
-    disconnect(this, SIGNAL(resetWinCame3(const int,const int)), my_show_thread3, SIGNAL(resetCamera(const int,const int)));
-
-    disconnect(this, SIGNAL(resetWinHandle0(const DisplayPara)), my_show_thread0, SIGNAL(resetWinPara(const DisplayPara)));
-    disconnect(this, SIGNAL(resetWinHandle1(const DisplayPara)), my_show_thread1, SIGNAL(resetWinPara(const DisplayPara)));
-    disconnect(this, SIGNAL(resetWinHandle2(const DisplayPara)), my_show_thread2, SIGNAL(resetWinPara(const DisplayPara)));
-    disconnect(this, SIGNAL(resetWinHandle3(const DisplayPara)), my_show_thread3, SIGNAL(resetWinPara(const DisplayPara)));
-
-    disconnect(udpSocket_video, SIGNAL(readyRead()),this, SLOT(recv_real_videodata()));
-
-    my_deco_thread0->terminate();
-    my_deco_thread1->terminate();
-    my_deco_thread2->terminate();
-    my_deco_thread3->terminate();
-    my_deco_thread4->terminate();
-    my_deco_thread5->terminate();
-    my_deco_thread6->terminate();
-    my_deco_thread7->terminate();
-    my_deco_thread8->terminate();
-    my_deco_thread9->terminate();
-    my_show_thread0->terminate();
-    my_show_thread1->terminate();
-    my_show_thread2->terminate();//add by zs
-    my_show_thread3->terminate();//add by zs
-
-    my_deco_thread0->wait();
-    my_deco_thread1->wait();
-    my_deco_thread2->wait();
-    my_deco_thread3->wait();
-    my_deco_thread4->wait();
-    my_deco_thread5->wait();
-    my_deco_thread6->wait();
-    my_deco_thread7->wait();
-    my_deco_thread8->wait();
-    my_deco_thread9->wait();
-    my_show_thread0->wait();
-    my_show_thread1->wait();
-    my_show_thread2->wait();//add by zs
-    my_show_thread3->wait();//add by zs
-
-    //this->close();
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //+++++++++++init SDL && decode++++++++++++++++++++++++++++++//
@@ -1585,441 +1339,9 @@ void MainWindow::SDL_init(){
 
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-//+++++++++++get realtime video data+++++++++++++++++++++//
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-void MainWindow::recv_real_videodata()
-{
-//    cout<<"recv_real_videodata() has been called~~~~~~~"<<endl;
-
-    QHostAddress sender4;
-    quint16 senderPort4;
-
-    while(udpSocket_video->hasPendingDatagrams())
-    {
-        memset(tmp_buf_r_total, '\0', sizeof(tmp_buf_r_total));
-        udpSocket_video->readDatagram(tmp_buf_r_total, MAXLINE, &sender4, &senderPort4);
-
-
-
-        if(video_allowed==1 && video_sure==1){
-            if(tmp_buf_r_total[0] == '#'){
-//                cout<<"##"<<endl;
-                continue;
-            }
-
-//            cout<<"video_data coming"<<endl;
-
-            memcpy((char *)frame_header_real, tmp_buf_r_total, sizeof(Frame_header));
-            camera_no_real = ntohl(frame_header_real->camera_no);
-
-            //将IP关联至cameraNo
-            cameraNoToIp[camera_no_real] = sender4;
-            cameraNoToPort[camera_no_real] = senderPort4;
-
-            //回放时停止相应摄像头的实时数据接收
-            if(!(replay && camera_no_real == camera_no_local && camera_no_real)){
-
-                switch(camera_no_real-1){
-                case 0:
-                    emptyFrame0.acquire();
-
-                    memset(frameBuf0[nextPutFrame0], 0, MAXLINE);
-                    memcpy(frameBuf0[nextPutFrame0], tmp_buf_r_total, MAXLINE);
-
-                    fullFrame0.release();
-
-                    nextPutFrame0++;
-                    nextPutFrame0 %= MAX_BUF_SIZE;
-
-                    emit frameReady0();
-
-                    break;
-
-                case 1:
-                    emptyFrame1.acquire();
-
-                    memset(frameBuf1[nextPutFrame1], 0, MAXLINE);
-                    memcpy(frameBuf1[nextPutFrame1], tmp_buf_r_total, MAXLINE);
-
-                    fullFrame1.release();
-
-                    nextPutFrame1++;
-                    nextPutFrame1 %= MAX_BUF_SIZE;
-
-                    emit frameReady1();
-
-                    break;
-
-                case 2:
-                    emptyFrame2.acquire();
-
-                    memset(frameBuf2[nextPutFrame2], 0, MAXLINE);
-                    memcpy(frameBuf2[nextPutFrame2], tmp_buf_r_total, MAXLINE);
-
-                    fullFrame2.release();
-
-                    nextPutFrame2++;
-                    nextPutFrame2 %= MAX_BUF_SIZE;
-
-                    emit frameReady2();
-
-                    break;
-
-                case 3:
-                    emptyFrame3.acquire();
-
-                    memset(frameBuf3[nextPutFrame3], 0, MAXLINE);
-                    memcpy(frameBuf3[nextPutFrame3], tmp_buf_r_total, MAXLINE);
-
-                    fullFrame3.release();
-
-                    nextPutFrame3++;
-                    nextPutFrame3 %= MAX_BUF_SIZE;
-
-                    emit frameReady3();
-
-                    break;
-
-                case 4:
-                    emptyFrame4.acquire();
-
-                    memset(frameBuf4[nextPutFrame4], 0, MAXLINE);
-                    memcpy(frameBuf4[nextPutFrame4], tmp_buf_r_total, MAXLINE);
-
-                    fullFrame4.release();
-
-                    nextPutFrame4++;
-                    nextPutFrame4 %= MAX_BUF_SIZE;
-
-                    emit frameReady4();
-
-                    break;
-
-                case 5:
-                    emptyFrame5.acquire();
-
-                    memset(frameBuf5[nextPutFrame5], 0, MAXLINE);
-                    memcpy(frameBuf5[nextPutFrame5], tmp_buf_r_total, MAXLINE);
-
-                    fullFrame5.release();
-
-                    nextPutFrame5++;
-                    nextPutFrame5 %= MAX_BUF_SIZE;
-
-                    emit frameReady5();
-
-                    break;
-
-                case 6:
-                    emptyFrame6.acquire();
-
-                    memset(frameBuf6[nextPutFrame6], 0, MAXLINE);
-                    memcpy(frameBuf6[nextPutFrame6], tmp_buf_r_total, MAXLINE);
-
-                    fullFrame6.release();
-
-                    nextPutFrame6++;
-                    nextPutFrame6 %= MAX_BUF_SIZE;
-
-                    emit frameReady6();
-
-                    break;
-
-                case 7:
-                    emptyFrame7.acquire();
-
-                    memset(frameBuf7[nextPutFrame7], 0, MAXLINE);
-                    memcpy(frameBuf7[nextPutFrame7], tmp_buf_r_total, MAXLINE);
-
-                    fullFrame7.release();
-
-                    nextPutFrame7++;
-                    nextPutFrame7 %= MAX_BUF_SIZE;
-
-                    emit frameReady7();
-
-                    break;
-
-                case 8:
-                    emptyFrame8.acquire();
-
-                    memset(frameBuf8[nextPutFrame8], 0, MAXLINE);
-                    memcpy(frameBuf8[nextPutFrame8], tmp_buf_r_total, MAXLINE);
-
-                    fullFrame8.release();
-
-                    nextPutFrame8++;
-                    nextPutFrame8 %= MAX_BUF_SIZE;
-
-                    emit frameReady8();
-
-                    break;
-
-                case 9:
-                    emptyFrame9.acquire();
-
-                    memset(frameBuf9[nextPutFrame9], 0, MAXLINE);
-                    memcpy(frameBuf9[nextPutFrame9], tmp_buf_r_total, MAXLINE);
-
-                    fullFrame9.release();
-
-                    nextPutFrame9++;
-                    nextPutFrame9 %= MAX_BUF_SIZE;
-
-                    emit frameReady9();
-
-                    break;
-
-                default:
-                    break;
-                }
-
-            }
-
-        }
-
-    }//while
-    //Sleep(10);
-
-}
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-//+++++++++++++get local video data++++++++++++++++++++++//
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-void MainWindow::recv_local_videodata()
-{
-    first_fb = 1;
-    replay = 1;
-
-    for(ii = strlist.begin(); ii != strlist.end(); ii++)
-    {
-        totalRecords = 0;
-
-        strVideos = strlist.front();
-        video_frag = strVideos.toLatin1();
-        file_v = video_frag.data();
-        printf("%s\n", file_v);
-
-        existed_v_e = fopen(file_v, "rb");
-        fseek(existed_v_e, -1L*sizeof(uint64_t), SEEK_END);
-        fread(&totalRecords, sizeof(uint64_t), 1, existed_v_e);
-        fclose(existed_v_e);
-        existed_v_e = NULL;
-
-        existed_vs = fopen(file_v, "rb");
-        if(existed_vs == NULL)
-            return;
-
-        if(first_fb == 1)
-        {
-//            ui->hSlider->setVisible(true);
-
-            first_fb = 0;
-        }
-
-        frame_cur_loca = 0;
-        while(existed_vs != NULL && feof(existed_vs) == 0)
-        {
-            //qDebug()<<"local file data receiving...\n";
-            if(speed_change_v == 0)
-            {
-                tick_now = floor(((float)(frame_cur_loca++)*100)/totalRecords);
-            }
-            else //if(speed_change_v == 1)
-            {
-                if(feof(existed_v_s) == 0)
-                {
-                    existed_vs = existed_v_s;
-                }
-                speed_change_v = 0;
-
-                frame_cur_loca = ceil(((float)tick_now * totalRecords) / 100);
-
-            }
-//            ui->hSlider->setValue(tick_now);
-
-
-            memset(tmp_buf_l_total, '\0', sizeof(tmp_buf_l_total));
-            fread(tmp_buf_l_total, 1, sizeof(Frame_header)+T_MAX, existed_vs);
-
-            memcpy((char*)frame_header_local, tmp_buf_l_total, sizeof(Frame_header));
-            camera_no_local = ntohl(frame_header_local->camera_no);
-
-            switch(camera_no_local - 1){
-            case 0:
-                emptyFrame0.acquire();
-                memset(frameBuf0[nextPutFrame0], 0, MAXLINE);
-                memcpy(frameBuf0[nextPutFrame0], tmp_buf_l_total, sizeof(Frame_header)+T_MAX);
-                fullFrame0.release();
-
-                nextPutFrame0++;
-                nextPutFrame0 %= MAX_BUF_SIZE;
-
-                emit frameReady0();
-                break;
-
-            case 1:
-                emptyFrame1.acquire();
-                memset(frameBuf1[nextPutFrame1], 0, MAXLINE);
-                memcpy(frameBuf1[nextPutFrame1], tmp_buf_l_total, sizeof(Frame_header)+T_MAX);
-                fullFrame1.release();
-
-                nextPutFrame1++;
-                nextPutFrame1 %= MAX_BUF_SIZE;
-
-                emit frameReady1();
-                break;
-
-            case 2:
-                emptyFrame2.acquire();
-                memset(frameBuf2[nextPutFrame2], 0, MAXLINE);
-                memcpy(frameBuf2[nextPutFrame2], tmp_buf_l_total, sizeof(Frame_header)+T_MAX);
-                fullFrame2.release();
-
-                nextPutFrame2++;
-                nextPutFrame2 %= MAX_BUF_SIZE;
-
-                emit frameReady2();
-                break;
-
-            case 3:
-                emptyFrame3.acquire();
-                memset(frameBuf3[nextPutFrame3], 0, MAXLINE);
-                memcpy(frameBuf3[nextPutFrame3], tmp_buf_l_total, sizeof(Frame_header)+T_MAX);
-                fullFrame3.release();
-
-                nextPutFrame3++;
-                nextPutFrame3 %= MAX_BUF_SIZE;
-
-                emit frameReady3();
-                break;
-
-            case 4:
-                emptyFrame4.acquire();
-                memset(frameBuf4[nextPutFrame5], 0, MAXLINE);
-                memcpy(frameBuf4[nextPutFrame4], tmp_buf_l_total, sizeof(Frame_header)+T_MAX);
-                fullFrame5.release();
-
-                nextPutFrame4++;
-                nextPutFrame4 %= MAX_BUF_SIZE;
-
-                emit frameReady4();
-                break;
-
-            case 5:
-                emptyFrame5.acquire();
-                memset(frameBuf5[nextPutFrame5], 0, MAXLINE);
-                memcpy(frameBuf5[nextPutFrame5], tmp_buf_l_total, sizeof(Frame_header)+T_MAX);
-                fullFrame5.release();
-
-                nextPutFrame5++;
-                nextPutFrame5 %= MAX_BUF_SIZE;
-
-                emit frameReady5();
-                break;
-
-            case 6:
-                emptyFrame6.acquire();
-                memset(frameBuf6[nextPutFrame6], 0, MAXLINE);
-                memcpy(frameBuf6[nextPutFrame6], tmp_buf_l_total, sizeof(Frame_header)+T_MAX);
-                fullFrame6.release();
-
-                nextPutFrame6++;
-                nextPutFrame6 %= MAX_BUF_SIZE;
-
-                emit frameReady6();
-                break;
-
-            case 7:
-                emptyFrame7.acquire();
-                memset(frameBuf7[nextPutFrame7], 0, MAXLINE);
-                memcpy(frameBuf7[nextPutFrame7], tmp_buf_l_total, sizeof(Frame_header)+T_MAX);
-                fullFrame7.release();
-
-                nextPutFrame7++;
-                nextPutFrame7 %= MAX_BUF_SIZE;
-
-                emit frameReady7();
-                break;
-
-            case 8:
-                emptyFrame8.acquire();
-                memset(frameBuf8[nextPutFrame8], 0, MAXLINE);
-                memcpy(frameBuf8[nextPutFrame8], tmp_buf_l_total, sizeof(Frame_header)+T_MAX);
-                fullFrame8.release();
-
-                nextPutFrame8++;
-                nextPutFrame8 %= MAX_BUF_SIZE;
-
-                emit frameReady8();
-                break;
-
-            case 9:
-                emptyFrame9.acquire();
-                memset(frameBuf9[nextPutFrame9], 0, MAXLINE);
-                memcpy(frameBuf9[nextPutFrame9], tmp_buf_l_total, sizeof(Frame_header)+T_MAX);
-                fullFrame9.release();
-
-                nextPutFrame9++;
-                nextPutFrame9 %= MAX_BUF_SIZE;
-
-                emit frameReady9();
-                break;
-
-              default:
-                break;
-            }
-
-            //ensure nomal speed of video repalying
-            Sleep(5);
-        }
-
-        fclose(existed_vs);
-        existed_vs = NULL;
-
-//        ui->hSlider->setValue(0);
-
-        strlist.removeFirst();
-    }
-
-    replay = 0;
-    camera_no_local = 0;
-
-//    qDebug()<<"recv_local_videodata complete"<<endl;
-}
-
-
-/****************************************/
-void MainWindow::sendShowSignal(const int camera_no){
-
-    for(int i = 0; i < MAX_PLAY_NUM; ++i){
-        if(win_camera[i] == camera_no){
-            switch(i){
-            case 0:
-                emit showVideo0();
-//                cout<<"emit showVideo0"<<endl;
-                break;
-            case 1:
-                emit showVideo1();
-//                cout<<"emit showVideo1"<<endl;
-                break;
-            case 2:
-                emit showVideo2();
-//                cout<<"emit showVideo2"<<endl;
-                break;
-            case 3:
-                emit showVideo3();
-//                cout<<"emit showVideo3"<<endl;
-                break;
-            default:
-                break;
-            }
-            break;
-        }
-    }
-}
-
-
+//ricann todo
+//for(int i = 0; i < MAX_PLAY_NUM; ++i){
+//    if(win_camera[i] == camera_no){
 
 void MainWindow::setShowCamera(int *new_win_camera){
     for(int i = 0; i < MAX_PLAY_NUM; ++i){
@@ -2028,7 +1350,7 @@ void MainWindow::setShowCamera(int *new_win_camera){
         if(old_camera > 0)
             play_or_not[old_camera-1] = 0;
     }
-
+/*
     for(int i = 0; i < MAX_PLAY_NUM; ++i){
         int new_camera = new_win_camera[i];
         win_camera[i] = new_camera;
@@ -2059,6 +1381,7 @@ void MainWindow::setShowCamera(int *new_win_camera){
         }
 
     }
+    //*/
 }
 
 ///////////******在tab间切换槽函数******//////////////
@@ -2480,7 +1803,8 @@ void MainWindow::sendPoints(int cameraNo)
         for(int i = 0;i < changedPoints->size();i++) {
             out << changedPoints->at(i);
         }
-        udpSocket_video->writeDatagram(datagram,sender,senderPort);
+        //ricann todo
+        //udpSocket_video->writeDatagram(datagram,sender,senderPort);
     }
     else
          qDebug() << "IP is NULL" << endl;

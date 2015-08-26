@@ -31,6 +31,7 @@
 #include <QUdpSocket>
 #include <QtNetwork>
 #include <QEventLoop>
+#include <QHostAddress>
 
 #include <QApplication>
 #include <QCoreApplication>

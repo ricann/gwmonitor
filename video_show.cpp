@@ -1,16 +1,26 @@
-#include "display_func.h"
-#include <qpoint.h>
+#include <QPoint>
+
+#include <iostream>
+
+#include "video_recv.h"
+#include "video_decode.h"
+
+#include "video_show.h"
+
+using namespace std;
 
 extern QList<QPoint> points;//存放SDL画线的点的集合
 
-ShowObject::ShowObject(const DisplayPara myDispara){
-//    hwnd = myDispara.my_hwnd;
+extern showfr_ring_t showfr_ring;
+
+ShowThread *show_thread;
+
+VideoShow::VideoShow(const DisplayPara myDispara)
+{
     ww = myDispara.my_width;
     hh = myDispara.my_height;
 
     pFrame=avcodec_alloc_frame();//给视频帧分配空间以便存储解码后的图片
-
-
 
     mutex_avcodec.lock();
 
@@ -20,7 +30,6 @@ ShowObject::ShowObject(const DisplayPara myDispara){
         cout<<"img_convert_ctx == NULL\n";
         exit(-1);
     }
-
 
     pCodecCtxT=avcodec_alloc_context();
     pCodecCtxT->width = pCodecCtx->width;
@@ -48,12 +57,10 @@ ShowObject::ShowObject(const DisplayPara myDispara){
     yuv_file = NULL;
 
     connect(&timer,SIGNAL(timeout()),this,SLOT(deal_timeout()));
-
-//    qDebug()<<"ShwoObject-ID = "<<QThread::currentThreadId();
-
 }
 
-ShowObject::~ShowObject(){
+VideoShow::~VideoShow()
+{
     SDL_FreeYUVOverlay(bmp);
     SDL_FreeSurface(screen);
     SDL_Quit();
@@ -63,7 +70,8 @@ ShowObject::~ShowObject(){
 //    av_close_input_file(pFormatCtx);
 }
 
-void ShowObject::deal_timeout(){
+void VideoShow::deal_timeout()
+{
     if(yuv_debug){
         if(yuv_file){
             fclose(yuv_file);
@@ -76,24 +84,21 @@ void ShowObject::deal_timeout(){
     timer.stop();
 }
 
-void ShowObject::resetCamera(const int cameraNo,const int winNo){
+void VideoShow::resetCamera(const int cameraNo,const int winNo)
+{
     camera_no = cameraNo;
     win_no=winNo;
-
-//    cout<<"show_thread-"<<QThread::currentThreadId()<<"-cameraNo = "<<camera_no
-//       <<"  winNo = "<<win_no<<endl;
 }
 
-void ShowObject::resetDisPara(const DisplayPara myDispara){
+void VideoShow::resetDisPara(const DisplayPara myDispara)
+{
     ww = myDispara.my_width;
     hh = myDispara.my_height;
 }
 
 
-void ShowObject::dealShowVideo(){
-//    ////debug
-//    if(camera_no==2)
-//        cout<<"show_thread_"<<camera_no<<" is running! ID : "<<QThread::currentThreadId()<<endl;
+void VideoShow::slot_showvideo()
+{
 
     int frameFinished = 0;
     int decode = 0;
@@ -101,170 +106,18 @@ void ShowObject::dealShowVideo(){
     int dataLength = 0;
     char *showData = NULL;
 
-        switch(camera_no){
-        case 1:
-            if(fullShow0.tryAcquire(1,0)){
-                pFrameNoNow = showBuf0[nextGetShow0].frameNo;
-                dataLength = showBuf0[nextGetShow0].size;
-                showData = (char*)malloc((dataLength+1)*sizeof(char));
-                memcpy(showData, showBuf0[nextGetShow0].h264node, dataLength);
-                showData[dataLength] = '\0';
+    //showfr_ring is empty
+    if(SRING_HEAD == SRING_TAIL)
+        return;
 
-                emptyShow0.release();
+    camera_no = SRING_HEAD_FARAME_CNO;
+    pFrameNoNow = SRING_HEAD_FARAME_FNO;
+    dataLength = SRING_HEAD_FARAME_SIZE;
+    showData = (char*)malloc((dataLength+1)*sizeof(char));
+    memcpy(showData, SRING_HEAD_FARAME_BUF, dataLength);
+    showData[dataLength] = '\0';
 
-                nextGetShow0++;
-                nextGetShow0 %= MAX_BUF_SIZE;
-            }
 
-            break;
-
-        case 2:
-            if(fullShow1.tryAcquire(1,0)){
-                pFrameNoNow = showBuf1[nextGetShow1].frameNo;
-                dataLength = showBuf1[nextGetShow1].size;
-                showData = (char*)malloc((dataLength+1)*sizeof(char));
-                memcpy(showData, showBuf1[nextGetShow1].h264node, dataLength);
-                showData[dataLength] = '\0';
-
-                emptyShow1.release();
-
-                nextGetShow1++;
-                nextGetShow1 %= MAX_BUF_SIZE;
-            }
-
-            break;
-
-        case 3:
-            if(fullShow2.tryAcquire(1,0)){
-                pFrameNoNow = showBuf2[nextGetShow2].frameNo;
-                dataLength = showBuf2[nextGetShow2].size;
-                showData = (char*)malloc((dataLength+1)*sizeof(char));
-                memcpy(showData, showBuf2[nextGetShow2].h264node, dataLength);
-                showData[dataLength] = '\0';
-
-                emptyShow2.release();
-
-                nextGetShow2++;
-                nextGetShow2 %= MAX_BUF_SIZE;
-            }
-
-            break;
-
-        case 4:
-            if(fullShow3.tryAcquire(1,0)){
-                pFrameNoNow = showBuf3[nextGetShow3].frameNo;
-                dataLength = showBuf3[nextGetShow3].size;
-                showData = (char*)malloc((dataLength+1)*sizeof(char));
-                memcpy(showData, showBuf3[nextGetShow3].h264node, dataLength);
-                showData[dataLength] = '\0';
-
-                emptyShow3.release();
-
-                nextGetShow3++;
-                nextGetShow3 %= MAX_BUF_SIZE;
-            }
-
-            break;
-
-        case 5:
-            if(fullShow4.tryAcquire(1,0)){
-                pFrameNoNow = showBuf4[nextGetShow4].frameNo;
-                dataLength = showBuf4[nextGetShow4].size;
-                showData = (char*)malloc((dataLength+1)*sizeof(char));
-                memcpy(showData, showBuf4[nextGetShow4].h264node, dataLength);
-                showData[dataLength] = '\0';
-
-                emptyShow4.release();
-
-                nextGetShow4++;
-                nextGetShow4 %= MAX_BUF_SIZE;
-            }
-
-            break;
-
-        case 6:
-            if(fullShow5.tryAcquire(1,0)){
-                pFrameNoNow = showBuf5[nextGetShow5].frameNo;
-                dataLength = showBuf5[nextGetShow5].size;
-                showData = (char*)malloc((dataLength+1)*sizeof(char));
-                memcpy(showData, showBuf5[nextGetShow5].h264node, dataLength);
-                showData[dataLength] = '\0';
-
-                emptyShow5.release();
-
-                nextGetShow5++;
-                nextGetShow5 %= MAX_BUF_SIZE;
-            }
-
-            break;
-
-        case 7:
-            if(fullShow6.tryAcquire(1,0)){
-                pFrameNoNow = showBuf6[nextGetShow6].frameNo;
-                dataLength = showBuf6[nextGetShow6].size;
-                showData = (char*)malloc((dataLength+1)*sizeof(char));
-                memcpy(showData, showBuf6[nextGetShow6].h264node, dataLength);
-                showData[dataLength] = '\0';
-
-                emptyShow6.release();
-
-                nextGetShow6++;
-                nextGetShow6 %= MAX_BUF_SIZE;
-            }
-
-            break;
-
-        case 8:
-            if(fullShow7.tryAcquire(1,0)){
-                pFrameNoNow = showBuf7[nextGetShow7].frameNo;
-                dataLength = showBuf7[nextGetShow7].size;
-                showData = (char*)malloc((dataLength+1)*sizeof(char));
-                memcpy(showData, showBuf7[nextGetShow7].h264node, dataLength);
-                showData[dataLength] = '\0';
-
-                emptyShow7.release();
-
-                nextGetShow7++;
-                nextGetShow7 %= MAX_BUF_SIZE;
-            }
-
-            break;
-
-        case 9:
-            if(fullShow8.tryAcquire(1,0)){
-                pFrameNoNow = showBuf8[nextGetShow8].frameNo;
-                dataLength = showBuf8[nextGetShow8].size;
-                showData = (char*)malloc((dataLength+1)*sizeof(char));
-                memcpy(showData, showBuf8[nextGetShow8].h264node, dataLength);
-                showData[dataLength] = '\0';
-
-                emptyShow8.release();
-
-                nextGetShow8++;
-                nextGetShow8 %= MAX_BUF_SIZE;
-            }
-
-            break;
-
-        case 10:
-            if(fullShow9.tryAcquire(1,0)){
-                pFrameNoNow = showBuf9[nextGetShow9].frameNo;
-                dataLength = showBuf9[nextGetShow9].size;
-                showData = (char*)malloc((dataLength+1)*sizeof(char));
-                memcpy(showData, showBuf9[nextGetShow9].h264node, dataLength);
-                showData[dataLength] = '\0';
-
-                emptyShow9.release();
-
-                nextGetShow9++;
-                nextGetShow9 %= MAX_BUF_SIZE;
-            }
-
-            break;
-
-        default:
-            break;
-        }
 
         if(!timer.isActive()){
             timer.start(10 * 1000);
@@ -436,7 +289,6 @@ void ShowObject::dealShowVideo(){
                 if(sWinNo == eWinNo && win_no == sWinNo) {
                     drawLine(bmp,sx,sy,ex,ey);
                 }
-                //bresenham_line(bmp,sx,sy,ex,ey);
             }
         }
 
@@ -475,38 +327,9 @@ void ShowObject::dealShowVideo(){
         default:
             break;
         }
-//    }
-    //else
-    //printf("....queue empty....\n");
 }
 
-
-ShowThread::ShowThread(DisplayPara myDisPara){
-        myShowPara.my_width = myDisPara.my_width;
-        myShowPara.my_height = myDisPara.my_height;
-
-//        qDebug()<<"ShowThread-ID = "<<currentThreadId();
-
-}
-
-ShowThread::~ShowThread(){
-    quit();
-    wait();
-    deleteLater();
-}
-
-void ShowThread::run(){
-    ShowObject obj(myShowPara);
-    obj.moveToThread(this);
-
-    connect(this, SIGNAL(resetCamera(const int,const int)), &obj, SLOT(resetCamera(const int,const int)), Qt::BlockingQueuedConnection);
-    connect(this, SIGNAL(dataArrived()), &obj, SLOT(dealShowVideo()), Qt::BlockingQueuedConnection);
-    connect(this, SIGNAL(resetWinPara(const DisplayPara)), &obj, SLOT(resetDisPara(const DisplayPara)), Qt::BlockingQueuedConnection);
-
-    exec();
-}
-
-int ShowObject::changePointsByWinNo(int &x, int &y)
+int VideoShow::changePointsByWinNo(int &x, int &y)
 {
     int winNo = 0;
     //判定点所在的窗口并转换点的坐标
@@ -539,26 +362,18 @@ int ShowObject::changePointsByWinNo(int &x, int &y)
     return winNo;
 }
 
-void ShowObject::drawPoint(SDL_Overlay *yuv, int x, int y)
+void VideoShow::drawPoint(SDL_Overlay *yuv, int x, int y)
 {
     drawHLine(yuv,x,y,1);
 }
 
-void ShowObject::drawHLine(SDL_Overlay *yuv, int sx, int sy, int len)
+void VideoShow::drawHLine(SDL_Overlay *yuv, int sx, int sy, int len)
 {
     SDL_Rect rect = {sx,sy, len, 1};
     fillRect(yuv, &rect, 255,255,255);
 }
 
-void ShowObject::drawHLine_(SDL_Overlay *yuv, int sx, int sy, int len)
-{
-    int w = yuv->pitches[0];
-    memset(yuv->pixels[0]+sy*w + sx, 255, len*1);
-    memset(yuv->pixels[1]+(sy*w + 2*sx)/4, 255, (len+1)/2);
-    memset(yuv->pixels[2]+(sy*w + 2*sx)/4, 255, (len+1)/2);
-}
-
-void ShowObject::fillRect(SDL_Overlay *yuv, SDL_Rect *rect, int y0, int u, int v)
+void VideoShow::fillRect(SDL_Overlay *yuv, SDL_Rect *rect, int y0, int u, int v)
 {
     int y;
     int size = rect->w;
@@ -577,7 +392,7 @@ void ShowObject::fillRect(SDL_Overlay *yuv, SDL_Rect *rect, int y0, int u, int v
     }
 }
 
-void ShowObject::drawLine(SDL_Overlay *yuv, int sx, int sy, int ex, int ey)
+void VideoShow::drawLine(SDL_Overlay *yuv, int sx, int sy, int ex, int ey)
 {
     float delta_x,delta_y,x,y;
     int dx,dy,steps,k;
@@ -602,77 +417,32 @@ void ShowObject::drawLine(SDL_Overlay *yuv, int sx, int sy, int ex, int ey)
     }
 }
 
-void ShowObject::bresenham_line(SDL_Overlay *yuv, int sx, int sy, int ex, int ey)
+ShowThread::ShowThread(DisplayPara myDisPara)
 {
- int dx,dy,x,y,p,const1,const2,inc,tmp;
- dx = ex-sx;
- dy = ey-sy;
- if(dx*dy >= 0)
-  inc = 1;
- else
-  inc = -1;
- if(abs(dx)>abs(dy))
- {
-  if(dx<0)
-  {
-   tmp = sx;
-   sx = ex;
-   ex = tmp;
-   tmp = sy;
-   sy = ey;
-   ey = tmp;
-   dx = -dx;
-   dy = -dy;
-  }
-  p = 2*dy-dx;
-  const1 = 2*dy;
-  const2 = 2*(dy-dx);
-  x = sx;
-  y = sy;
-  drawPoint(yuv,x,y);
-  while(x<ex)
-  {
-   x++;
-   if(p<0)
-    p += const1;
-   else
-   {
-    y += inc;
-    p += const2;
-   }
-   drawPoint(yuv,x,y);
-  }
- }
- else
- {
-  if(dy<0)
-  {
-   tmp = sx;
-   sx = ex;
-   ex = tmp;
-   tmp = sy;
-   sy = ey;
-   ey = tmp;
-   dx = -dx;
-   dy = -dy;
-  }
-  p = 2*dy-dx;
-  const1 = 2*dy;
-  const2 = 2*(dy-dx);
-  x = sx;
-  y = sy;
-  drawPoint(yuv,x,y);
-  while(y<ey)
-  {
-   y++;
-   if(p<0)
-    p += const1;
-   else
-   {
-    x+=inc;
-    p+=const2;
-   }
-   drawPoint(yuv,x,y);
-  }
- }
+        myShowPara.my_width = myDisPara.my_width;
+        myShowPara.my_height = myDisPara.my_height;
+}
+
+ShowThread::~ShowThread()
+{
+    quit();
+    wait();
+    deleteLater();
+}
+
+void ShowThread::run()
+{
+    VideoShow vs(myShowPara);
+    vs.moveToThread(this);
+
+
+    connect(this, SIGNAL(sig_dataarrived()),
+            &vs, SLOT(slot_showvideo()),
+            Qt::BlockingQueuedConnection);
+
+/*    connect(this, SIGNAL(resetCamera(const int,const int)), &obj, SLOT(resetCamera(const int,const int)), Qt::BlockingQueuedConnection);
+
+    connect(this, SIGNAL(resetWinPara(const DisplayPara)), &obj, SLOT(resetDisPara(const DisplayPara)), Qt::BlockingQueuedConnection);
+//*/
+    exec();
 }

@@ -1,8 +1,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "commoninc_std.h"
-
 //ricann 20150823
 typedef	unsigned char uint8;
 typedef unsigned short uint16;

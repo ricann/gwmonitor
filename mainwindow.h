@@ -11,34 +11,19 @@
 #include "videoControl.h"
 #include "raptorcode.h"
 #include "externvar.h"
-#include "decode_func.h"
-#include "display_func.h"
+#include "video_recv.h"
+#include "video_decode.h"
+#include "video_show.h"
 #include "luagw.h"
-#include "ffmpeg.h"
 #include "videoControl.h"
 #include "resetTime.h"
 #include "process.h"
 
 #include <Winsock2.h>
 #include <list>
-#include <fstream>
+#include <iostream>
 
 using namespace std;
-
-extern "C"{
-    #include <libavcodec/avcodec.h>
-    #include <libavdevice/avdevice.h>
-    #include <libavformat/avformat.h>
-    #include <libavformat/avformat.h>
-    #include <libswscale/swscale.h>
-    #include <SDL_stdinc.h>
-    #include <SDL_mutex.h>
-    #include <SDL.h>
-    #include <SDL_thread.h>
-
-    #include <SDL_main.h>
-
-}
 
 #define MAX_IF_COUNT 4
 #define MAX_SINK_COUNT 10
@@ -133,41 +118,21 @@ signals:
     void freshCameraList();
     void freshPowerList(int,char,char,char,char);
 
+    /*
+    *线程间用“信号与槽”传递引用参数的话，一定要加const，
+    *因为const文字常量存在常量区中，生命周期与程序一样的长。
+    *这样可以避免slot调用的时候参数的运行期已过而使引用无效。
+    //*/
+    void resetWinCame0(const int,const int);//窗口显示的摄像头变动时发出
+    void resetWinCame1(const int,const int);
+    void resetWinCame2(const int,const int);
+    void resetWinCame3(const int,const int);
+
+    void resetWinHandle0(const DisplayPara);//放大或缩小窗口时发出
+    void resetWinHandle1(const DisplayPara);
+    void resetWinHandle2(const DisplayPara);
+    void resetWinHandle3(const DisplayPara);
     /********************************/
-        void frameReady0();
-        void frameReady1();
-        void frameReady2();
-        void frameReady3();
-        void frameReady4();
-        void frameReady5();
-        void frameReady6();
-        void frameReady7();
-        void frameReady8();
-        void frameReady9();
-
-
-        void showVideo0();
-        void showVideo1();
-        void showVideo2();
-        void showVideo3();
-
-/*
- *线程间用“信号与槽”传递引用参数的话，一定要加const，
- *因为const文字常量存在常量区中，生命周期与程序一样的长。
- *这样可以避免slot调用的时候参数的运行期已过而使引用无效。
-*/
-        void resetWinCame0(const int,const int);//窗口显示的摄像头变动时发出
-        void resetWinCame1(const int,const int);
-        void resetWinCame2(const int,const int);
-        void resetWinCame3(const int,const int);
-
-        void resetWinHandle0(const DisplayPara);//放大或缩小窗口时发出
-        void resetWinHandle1(const DisplayPara);
-        void resetWinHandle2(const DisplayPara);
-        void resetWinHandle3(const DisplayPara);
-    /********************************/
-
-
     
 private slots:
 
@@ -194,8 +159,6 @@ private slots:
 
 /**********************************/
     void all_stop();
-    void recv_real_videodata();
-    void recv_local_videodata();
 /**********************************/
 
     void on_mapChgBtn_clicked();
@@ -207,10 +170,6 @@ private slots:
     void replaySlot();
 
     void on_treeBtn_clicked();
-
-    /********************/
-    void sendShowSignal(const int);//判定是否发出显示信号以及向那个显示窗口线程发出显示信号
-    /********************/
 
     void tabIndexChanged();
     void on_voltageBtn_clicked();
@@ -300,24 +259,6 @@ private:
     QPoint nodePosOffset[NODE_NUM];
     QPoint nodePos[NODE_NUM];
 
-    /**********************************/
-    DecodeThread *my_deco_thread0;
-    DecodeThread *my_deco_thread1;
-    DecodeThread *my_deco_thread2;
-    DecodeThread *my_deco_thread3;
-    DecodeThread *my_deco_thread4;
-    DecodeThread *my_deco_thread5;
-    DecodeThread *my_deco_thread6;
-    DecodeThread *my_deco_thread7;
-    DecodeThread *my_deco_thread8;
-    DecodeThread *my_deco_thread9;
-
-    ShowThread *my_show_thread0;
-    ShowThread *my_show_thread1;
-    ShowThread *my_show_thread2;
-    ShowThread *my_show_thread3;
-
-    /**********************************/
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);
 };

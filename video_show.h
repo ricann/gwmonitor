@@ -1,24 +1,16 @@
-#ifndef DISPLAY_FUNC_H
-#define DISPLAY_FUNC_H
+#ifndef VIDEO_SHOW_H
+#define VIDEO_SHOW_H
 
-#include "commoninc_qt.h"
-#include "commoninc_std.h"
 #include "externvar.h"
 
-#include <iostream>
-
-using namespace std;
-
-
-
-class ShowObject:public QObject{
+class VideoShow:public QObject{
     Q_OBJECT
 public:
-    ShowObject(const DisplayPara myDispara);//contain initialization
-    ~ShowObject();
+    VideoShow(const DisplayPara myDispara);//contain initialization
+    ~VideoShow();
 
 public slots:
-    void dealShowVideo();
+    void slot_showvideo();
     void resetDisPara(const DisplayPara myDispara);
     void resetCamera(const int cameraNo, const int winNo);
     void deal_timeout();
@@ -29,12 +21,10 @@ private:
 
     int ww;
     int hh;
-//    HWND hwnd;
 
     AVCodecContext *pCodecCtxT;
     AVFrame *pFrame;
 
-//    SDL_Surface *screen;
     SDL_Overlay *bmp;
     SDL_Rect dst;
 
@@ -53,10 +43,8 @@ private:
     int changePointsByWinNo(int &x, int &y);
     void drawPoint(SDL_Overlay *yuv, int x, int y);
     void drawHLine(SDL_Overlay *yuv, int sx, int sy, int len);
-    void drawHLine_(SDL_Overlay *yuv, int sx, int sy, int len);
     void fillRect(SDL_Overlay *yuv, SDL_Rect *rect, int y0, int u, int v);
     void drawLine(SDL_Overlay *yuv, int sx, int sy, int ex, int ey);
-    void bresenham_line(SDL_Overlay *yuv, int sx, int sy, int ex, int ey);
 
 };
 
@@ -68,12 +56,14 @@ public:
     void run();
 
 signals:
-    void dataArrived();
-    void resetWinPara(const DisplayPara myDispara);
-    void resetCamera(const int cameraNo, const int winNo);
+    void sig_dataarrived();
+    //void resetWinPara(const DisplayPara myDispara);
+    //void resetCamera(const int cameraNo, const int winNo);
 
 private:
     DisplayPara myShowPara;
 };
 
-#endif // DISPLAY_FUNC_H
+extern ShowThread *show_thread;
+
+#endif // VIDEO_SHOW_H
