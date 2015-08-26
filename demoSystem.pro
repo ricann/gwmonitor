@@ -32,7 +32,6 @@ SOURCES += main.cpp\
     dragablebutton.cpp \
     dropableplot.cpp \
     power.cpp \
-    ffmpeg.cpp \
     video_recv.cpp \
     video_decode.cpp \
     video_show.cpp
@@ -56,7 +55,6 @@ HEADERS  += mainwindow.h \
     dragablebutton.h \
     dropableplot.h \
     power.h \
-    ffmpeg.h \
     commoninc_qt.h \
     commoninc_std.h \
     video_recv.h \
