@@ -1,38 +1,11 @@
 #ifndef EXTERNVAR_H
 #define EXTERNVAR_H
 
-/*
-#include "commoninc_qt.h"
-#include <Winsock2.h>
-#include <list>
-#include <iostream>
-
-using namespace std;
-//*/
-
 #include <QMutex>
 #include <QThread>
 #include <QTimer>
 #include <QUdpSocket>
 #include <QHostAddress>
-
-extern "C"{
-    #include <libavcodec/avcodec.h>
-    #include <libavdevice/avdevice.h>
-    #include <libavformat/avformat.h>
-    #include <libavformat/avformat.h>
-    #include <libswscale/swscale.h>
-    #include <SDL_stdinc.h>
-    #include <SDL_mutex.h>
-    #include <SDL.h>
-    #include <SDL_thread.h>
-    #include <SDL_main.h>
-
-    #include "libavformat/avformat.h"
-    #include "libswscale/swscale.h"
-    #include "libavcodec/avcodec.h"
-    #include "libavutil/mathematics.h"
-}
 
 typedef struct Frame_header{
     int frame_no;
@@ -57,6 +30,7 @@ typedef struct ShowNode
 typedef struct DisplayPara{
     int my_width;
     int my_height;
+    unsigned int my_winid;
 }DisplayPara;
 
 #define K1_MAX 10
@@ -76,11 +50,5 @@ extern int video_debug;
 
 extern int play_or_not[MAX_CAMERA_NUM];
 extern int camera_history[MAX_PLAY_NUM];
-
-extern QMutex mutex_avcodec;//mutex是QT中预留的关键字，不能用来自定义变量!!
-extern SDL_Surface *screen;
-extern AVFormatContext *pFormatCtx;
-extern AVCodecContext *pCodecCtx;
-extern AVCodec *pCodec;
 
 #endif // EXTERNVAR_H

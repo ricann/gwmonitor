@@ -1,6 +1,24 @@
 #ifndef VIDEO_SHOW_H
 #define VIDEO_SHOW_H
 
+extern "C"{
+    #include <libavcodec/avcodec.h>
+    #include <libavdevice/avdevice.h>
+    #include <libavformat/avformat.h>
+    #include <libavformat/avformat.h>
+    #include <libswscale/swscale.h>
+    #include <SDL_stdinc.h>
+    #include <SDL_mutex.h>
+    #include <SDL.h>
+    #include <SDL_thread.h>
+    #include <SDL_main.h>
+
+    #include "libavformat/avformat.h"
+    #include "libswscale/swscale.h"
+    #include "libavcodec/avcodec.h"
+    #include "libavutil/mathematics.h"
+}
+
 #include "externvar.h"
 
 class VideoShow:public QObject{
@@ -21,17 +39,21 @@ private:
 
     int ww;
     int hh;
+    unsigned int winid;
 
-    AVCodecContext *pCodecCtxT;
-    AVFrame *pFrame;
-
+    SDL_Surface *screen;
     SDL_Overlay *bmp;
     SDL_Rect dst;
+
+    AVFormatContext *pFormatCtx;
+    AVCodecContext *pCodecCtx;
+    AVCodecContext *pCodecCtxT;
+    AVCodec *pCodec;
+    AVFrame *pFrame;
 
     struct SwsContext *img_convert_ctx;
     SDL_Event event_sdl;
     AVPicture pict;
-
 
     int fileNum;
     FILE *yuv_file;
@@ -40,6 +62,8 @@ private:
 
     QTimer timer;
 
+    //找到并打开解码器(只能打开一个解码器)
+    void SDL_init();
     int changePointsByWinNo(int &x, int &y);
     void drawPoint(SDL_Overlay *yuv, int x, int y);
     void drawHLine(SDL_Overlay *yuv, int sx, int sy, int len);

@@ -37,14 +37,6 @@ int plot_finished_flag=1;
 enum {LENGTH_CP = 4};
 QCustomPlot* cp[LENGTH_CP];
 
-QMutex mutex_avcodec;
-
-SDL_Surface *screen;
-AVFormatContext *pFormatCtx;
-AVCodecContext *pCodecCtx;
-AVCodec *pCodec;
-
-
 DisplayPara showPara;
 int showCameList[MAX_PLAY_NUM];
 int win_camera[MAX_PLAY_NUM];//0 default
@@ -94,8 +86,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     luaGw = new LuaGw(this); //标量转发程序
-
-    SDL_init();
 
     resetTime = new ResetTimeThread(); //定时关闭视频传输线程
     resetTime->start();
@@ -237,6 +227,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //ricann
     showPara.my_height = ui->video->height();
     showPara.my_width = ui->video->width();
+    showPara.my_winid = (unsigned int)ui->video->winId();
 
     recv_thread = new RecvThread();
     decode_thread = new DecodeThread();
@@ -244,6 +235,7 @@ MainWindow::MainWindow(QWidget *parent) :
     (*recv_thread).start();
     (*decode_thread).start();
     (*show_thread).start();
+
     /********************************************/
 
     int tabIndex=ui->map_TabWidget->currentIndex();
@@ -1239,10 +1231,6 @@ void config_read(int* yuv_debug, int* video_debug)
 
 void MainWindow::all_stop()
 {
-
-    avcodec_close(pCodecCtx);
-    av_close_input_file(pFormatCtx);
-
     free(frame_header_real);
     free(frame_header_local);
 
@@ -1253,89 +1241,6 @@ void MainWindow::all_stop()
     recv_thread->wait();
     decode_thread->wait();
     show_thread->wait();
-
-}
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-//+++++++++++init SDL && decode++++++++++++++++++++++++++++++//
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-void MainWindow::SDL_init(){
-
-    char variable[64];
-
-#ifdef Q_OS_WIN
-    sprintf(variable, "SDL_WINDOWID=0x%lx", (long unsigned int)ui->video->winId());
-#else
-    sprintf(variable, "SDL_WINDOWID=0x%lx", this->winId());
-#endif
-    putenv(variable);
-
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER)){
-        cout<<"SDL_Init() failure"<<endl;
-        exit(1);
-    }
-
-#ifndef __DARWIN__
-    screen = SDL_SetVideoMode(ui->video->width(), ui->video->height(), 0, SDL_HWSURFACE|SDL_RESIZABLE|SDL_ASYNCBLIT|SDL_HWACCEL|SDL_DOUBLEBUF);
-#else
-    screen = SDL_SetVideoMode(pCodecCtx->width, pCodecCtx->height, 24, 0);
-#endif
-
-    if(!screen){
-        cout<<"screen == NULL\n";
-        exit(1);
-    }
-
-    //ricann change, 20150822
-    //use avformat_alloc_context instead of av_alloc_format_context
-    //use avformat_open_input instead of av_open_input_file
-    //use av_dump_format instead of dump_format
-
-    av_register_all();//注册库中含有的所有可用的文件格式和编码器，当打开一个文件时，能够自动选择相应的文件格式和编码器
-    pFormatCtx = avformat_alloc_context();//给pFormatCtx分配内存
-    if (!pFormatCtx){
-        cout<<"avformat_alloc_context() failure"<<endl;
-        exit(-1);
-    }
-
-
-    char filename[] = "1.264";
-    if(avformat_open_input(&pFormatCtx, filename, NULL, NULL) !=0 ){// 打开视频文件
-        cout<<"avformat_open_input() failure"<<endl;
-        exit(-1);
-    }
-
-
-    if(av_find_stream_info(pFormatCtx)<0){//取出包含在文件中的流信息
-        cout<<"av_find_stream_info() failure"<<endl;
-        exit(-1);
-    }
-
-    av_dump_format(pFormatCtx, 0, filename, 0);//把获取到得参数全部输出
-
-    int videoStream = -1;
-    for(int i=0; i < (int)(pFormatCtx->nb_streams); i++){
-        if(pFormatCtx->streams[i]->codec->codec_type==CODEC_TYPE_VIDEO && videoStream<0)//找到视频流
-            videoStream=i;
-        break;
-    }
-
-    if(videoStream==-1){
-        cout<<"videoStream = -1\n";
-        exit(-1);
-    }
-
-    pCodecCtx=pFormatCtx->streams[videoStream]->codec;
-    pCodec=avcodec_find_decoder(pCodecCtx->codec_id);//寻找解码器
-
-    if(pCodec==NULL){
-        cout<<"pCodec == NULL\n";
-        exit(-1);
-    }
-
-    if(avcodec_open(pCodecCtx, pCodec)<0){//打开解码器
-        cout<<"cannot open accodec\n";
-        exit(-1);
-    }
 
 }
 

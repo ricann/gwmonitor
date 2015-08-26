@@ -107,10 +107,7 @@ public:
     QTimer *rplTimer;
     int routeCount;
 
-    /************************/
-    void SDL_init();//找到并打开解码器(只能打开一个解码器)
     void setShowCamera(int*);//选择显示摄像头时调用
-    /************************/
 
 signals:
     void newsCome(int,int);

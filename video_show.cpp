@@ -11,18 +11,17 @@ using namespace std;
 
 extern QList<QPoint> points;//存放SDL画线的点的集合
 
-extern showfr_ring_t showfr_ring;
-
 ShowThread *show_thread;
 
 VideoShow::VideoShow(const DisplayPara myDispara)
 {
     ww = myDispara.my_width;
     hh = myDispara.my_height;
+    winid = myDispara.my_winid;
 
-    pFrame=avcodec_alloc_frame();//给视频帧分配空间以便存储解码后的图片
+    SDL_init();
 
-    mutex_avcodec.lock();
+    pFrame = avcodec_alloc_frame();//给视频帧分配空间以便存储解码后的图片
 
     bmp = SDL_CreateYUVOverlay(pCodecCtx->width, pCodecCtx->height, SDL_YV12_OVERLAY, screen);
     img_convert_ctx = sws_getContext(pCodecCtx->width,pCodecCtx->height,pCodecCtx->pix_fmt,pCodecCtx->width,pCodecCtx->height, PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
@@ -31,7 +30,7 @@ VideoShow::VideoShow(const DisplayPara myDispara)
         exit(-1);
     }
 
-    pCodecCtxT=avcodec_alloc_context();
+    pCodecCtxT = avcodec_alloc_context();
     pCodecCtxT->width = pCodecCtx->width;
     pCodecCtxT->height = pCodecCtx->height;
     pCodecCtxT->time_base.num = pCodecCtx->time_base.num;
@@ -47,8 +46,6 @@ VideoShow::VideoShow(const DisplayPara myDispara)
         cout<<"avcodec_open failure\n";
         exit(-1);
     }
-
-    mutex_avcodec.unlock();
 
     fileNum = 0;
     pFrameNoNext = 1;
@@ -66,8 +63,84 @@ VideoShow::~VideoShow()
     SDL_Quit();
 
     av_free(pFrame);
-//    avcodec_close(pCodecCtx);
-//    av_close_input_file(pFormatCtx);
+    avcodec_close(pCodecCtx);
+    av_close_input_file(pFormatCtx);
+}
+
+void VideoShow::SDL_init()
+{
+    char filename[] = "1.264";
+    char variable[64];
+
+    sprintf(variable, "SDL_WINDOWID=0x%x", winid);
+
+    qDebug() << variable << endl;
+
+    putenv(variable);
+
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER)){
+        cout<<"SDL_Init() failure"<<endl;
+        exit(1);
+    }
+
+    screen = SDL_SetVideoMode(ww, hh, 0,
+        SDL_HWSURFACE|SDL_RESIZABLE|SDL_ASYNCBLIT|SDL_HWACCEL|SDL_DOUBLEBUF);
+
+    if(!screen){
+        cout<<"screen == NULL\n";
+        exit(1);
+    }
+
+    //ricann change, 20150822
+    //use avformat_alloc_context instead of av_alloc_format_context
+    //use avformat_open_input instead of av_open_input_file
+    //use av_dump_format instead of dump_format
+
+    av_register_all();//注册库中含有的所有可用的文件格式和编码器，当打开一个文件时，能够自动选择相应的文件格式和编码器
+    pFormatCtx = avformat_alloc_context();//给pFormatCtx分配内存
+    if (!pFormatCtx){
+        cout<<"avformat_alloc_context() failure"<<endl;
+        exit(-1);
+    }
+
+    if(avformat_open_input(&pFormatCtx, filename, NULL, NULL) !=0 ){// 打开视频文件
+        cout<<"avformat_open_input() failure"<<endl;
+        exit(-1);
+    }
+
+    if(av_find_stream_info(pFormatCtx)<0){//取出包含在文件中的流信息
+        cout<<"av_find_stream_info() failure"<<endl;
+        exit(-1);
+    }
+
+    av_dump_format(pFormatCtx, 0, filename, 0);//把获取到得参数全部输出
+
+    int videoStream = -1;
+    for(int i=0; i < (int)(pFormatCtx->nb_streams); i++){
+        //找到视频流
+        if((pFormatCtx->streams[i]->codec->codec_type == CODEC_TYPE_VIDEO)
+                && (videoStream < 0))
+            videoStream=i;
+        break;
+    }
+
+    if(videoStream==-1){
+        cout<<"videoStream = -1\n";
+        exit(-1);
+    }
+
+    pCodecCtx=pFormatCtx->streams[videoStream]->codec;
+    pCodec=avcodec_find_decoder(pCodecCtx->codec_id);//寻找解码器
+
+    if(pCodec==NULL){
+        cout<<"pCodec == NULL\n";
+        exit(-1);
+    }
+
+    if(avcodec_open(pCodecCtx, pCodec)<0){//打开解码器
+        cout<<"cannot open accodec\n";
+        exit(-1);
+    }
 }
 
 void VideoShow::deal_timeout()
@@ -421,6 +494,7 @@ ShowThread::ShowThread(DisplayPara myDisPara)
 {
         myShowPara.my_width = myDisPara.my_width;
         myShowPara.my_height = myDisPara.my_height;
+        myShowPara.my_winid = myDisPara.my_winid;
 }
 
 ShowThread::~ShowThread()

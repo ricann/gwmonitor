@@ -8,7 +8,6 @@
 
 using namespace std;
 
-extern udppkt_ring_t video_ring;
 showfr_ring_t showfr_ring;
 
 DecodeThread *decode_thread;

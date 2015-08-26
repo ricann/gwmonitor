@@ -62,6 +62,8 @@ signals:
 
 };
 
+extern udppkt_ring_t video_ring;
+
 extern RecvThread *recv_thread;
 
 #endif // VIDEO_RECV_H

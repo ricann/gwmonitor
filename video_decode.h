@@ -86,6 +86,8 @@ signals:
     void sig_dataarrived();
 };
 
+extern showfr_ring_t showfr_ring;
+
 extern DecodeThread *decode_thread;
 
 #endif // VIDEO_DECODE_H
