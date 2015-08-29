@@ -1,5 +1,9 @@
 #include "resetTime.h"
 
+#include <QUdpSocket>
+#include <QMap>
+#include <QList>
+
 //extern from MainWindow
 extern QUdpSocket *videoControlUDP;
 extern QMap<int,QHostAddress> cameraNoToIp;

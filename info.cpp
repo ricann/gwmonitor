@@ -2,6 +2,7 @@
 #include "info.h"
 #include "infodialog.h"
 
+#include <assert.h>
 
 Info::Info(QObject *parent) :
     QObject(parent)

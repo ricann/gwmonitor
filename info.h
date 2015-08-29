@@ -2,7 +2,6 @@
 #define INFO_H
 
 #include "commoninc_qt.h"
-#include <assert.h>
 
 class Info : public QObject
 {

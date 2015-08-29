@@ -1,6 +1,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+//默认规则：
+//node_info[0]不使用
+//node_info[i]中的下标i同时也表示第i个节点
+node_info_t node_info[MAX_NODE_NUM+1];
+
 QList<QPoint> points;
 QList<QPoint> fourPointsWin[4];
 QList<QPoint> *changedPoints = NULL;
@@ -37,7 +42,7 @@ int plot_finished_flag=1;
 enum {LENGTH_CP = 4};
 QCustomPlot* cp[LENGTH_CP];
 
-DisplayPara showPara;
+
 int showCameList[MAX_PLAY_NUM];
 int win_camera[MAX_PLAY_NUM];//0 default
 
@@ -67,8 +72,7 @@ QByteArray video_frag;
 char *file_v;
 QStringList::iterator ii;
 
-int yuv_debug,
-    video_debug;
+int yuv_debug, video_debug;
 void config_read(int* yuv_debug, int* video_debug);
 
 /************************************************/
@@ -79,11 +83,14 @@ QDateEdit *MainWindow::start = NULL;
 QDateEdit *MainWindow::end = NULL;
 
 /********************主窗口界面开始*********************/
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    DisplayPara showPara;
+
+    ui = new Ui::MainWindow;
     ui->setupUi(this);
+
+    memset(node_info, 0, sizeof(node_info));
 
     luaGw = new LuaGw(this); //标量转发程序
 
@@ -648,14 +655,13 @@ void MainWindow::refreshMapSlot()
 /*-----------接收Agent状态，根据状态画网络拓扑-----------*/
 void MainWindow::stateDatagram()
 {
+    QHostAddress sender2;
+    quint16 senderPort2;
     route_state_t temp;
+
     temp.index=0;
     temp.method=0;
     temp.len=0;
-    memset(temp.states,'\0',sizeof(temp.states));
-
-    QHostAddress sender2;
-    quint16 senderPort2;
 
     while(stateReceiver->hasPendingDatagrams())
     {
@@ -1345,22 +1351,6 @@ void MainWindow::on_treeBtn_clicked()
             treeLeaf.append(treeNodeInt[childItem->text(0)]);
             qDebug()<<childItem->text(0)<<"  ## "<<treeNodeInt[childItem->text(0)];
         }
-
-        //QTreeWidgetItem *cchild;
-
-        /*for(int j=0;j<childItem->childCount();j++)
-        {
-            cchild=childItem->child(j);
-            if (cchild->checkState(0) == Qt::Checked)
-            {
-                if(treeNode.contains(cchild->text(0)))
-                {
-                    selectedCount++;
-                    qDebug()<<cchild->text(0)<<"  ## "<<treeNode[cchild->text(0)];
-                    treeLeaf.append(treeNode[cchild->text(0)]);
-                }
-            }
-        }*/
     }
 
     ///************清空存储的SDL窗口绘图的点集***********///

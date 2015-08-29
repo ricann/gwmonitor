@@ -1,14 +1,14 @@
 #ifndef RESETTIME_H
 #define RESETTIME_H
 
-#include <commoninc_qt.h>
-#include <commoninc_std.h>
+#include <QTime>
+#include <QTimer>
+#include <QThread>
 
 class ResetTimeThread:public QThread{
 Q_OBJECT
 public:
     ResetTimeThread();
-
 
     void run();
 

@@ -26,8 +26,8 @@ VideoRecv::VideoRecv()
 
 VideoRecv::~VideoRecv()
 {
-    //ricann todo
-    //udp_sock不知道需不需要释放
+    //udp_sock需要释放
+    udp_sock->deleteLater();
 }
 
 void VideoRecv::slot_recvdata()

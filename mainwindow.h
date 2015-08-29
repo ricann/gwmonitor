@@ -9,7 +9,6 @@
 #include "dataAnalysis.h"
 #include "qcustomplot.h"
 #include "videoControl.h"
-#include "raptorcode.h"
 #include "externvar.h"
 #include "video_recv.h"
 #include "video_decode.h"
@@ -20,13 +19,10 @@
 #include "process.h"
 
 #include <Winsock2.h>
-#include <list>
 #include <iostream>
 
 using namespace std;
 
-#define MAX_IF_COUNT 4
-#define MAX_SINK_COUNT 10
 
 class Info;
 class QUdpSocket;
@@ -38,9 +34,6 @@ typedef struct {
     int16_t index;
     int32_t method;
     uint16_t len;
-    unsigned char states[MAX_IF_COUNT];
-    uint16_t neighbor_count;
-    uint16_t neighbors[MAX_SINK_COUNT];
 } route_state_t;
 
 //---------B/S控制命令格式----------
@@ -57,19 +50,6 @@ typedef struct{
     double longitude;
     QTimer *timer;
 } position_t;
-
-typedef struct
-{
-    int node;
-    char ip[16];
-    int video_exist;
-    int flag_ip;
-    int flag_gps;
-    int flag_ser;
-    int flag_video;
-    double latitude;
-    double longitude;
-}position;
 
 typedef struct
 {
