@@ -17,6 +17,11 @@ typedef struct _udppkt_ring_{
     int tail;
 }udppkt_ring_t;
 
+#define VIDEO_HEART_FILE        "videoHeartLog.txt"
+#define VIDEO_HEART_CHECK       1*60*1000
+#define VIDEO_HEART_TIMEOUT     5*60*1000
+
+
 //to operate video_ring easily
 #define VRING_HEAD              video_ring.head
 #define VRING_TAIL              video_ring.tail
@@ -36,7 +41,10 @@ typedef struct _udppkt_ring_{
 class VideoRecv:public QObject{
 Q_OBJECT
 private:
+    QUdpSocket *heart_sock;
     QUdpSocket *udp_sock;
+    QTimer *ptmr;
+    QFile *pfile;
 
 public:
     VideoRecv();
@@ -47,6 +55,9 @@ signals:
 
 private slots:
     void slot_recvdata();
+    void slot_recvheart();
+    //每隔一分钟检查一下摄像头活动节点有无超时的节点
+    void slot_timeout();
 };
 
 class RecvThread:public QThread{

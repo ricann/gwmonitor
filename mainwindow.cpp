@@ -90,12 +90,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui = new Ui::MainWindow;
     ui->setupUi(this);
 
+    //初始化node_info全局变量
     memset(node_info, 0, sizeof(node_info));
+    for(int i=1; i<=MAX_NODE_NUM; i++) {
+        node_info[i].nodeid = i;
+        node_info[i].cam_info.camid = i;
+    }
 
     luaGw = new LuaGw(this); //标量转发程序
 
-    resetTime = new ResetTimeThread(); //定时关闭视频传输线程
-    resetTime->start();
+    //ricann todo
+    //resetTime = new ResetTimeThread(); //定时关闭视频传输线程
+    //resetTime->start();
 
     config_read(&yuv_debug, &video_debug);
 
@@ -152,15 +158,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     posReceiver->bind(9992, QUdpSocket::ShareAddress);
     connect(posReceiver, SIGNAL(readyRead()), this, SLOT(posDatagram()));
 
-    //////*********初始化控制台时间控制命令端口9091*************////////
-    videoControlUDP = new QUdpSocket(this);
-    videoControlUDP->bind(9091, QUdpSocket::ShareAddress);
-    connect(videoControlUDP, SIGNAL(readyRead()), this, SLOT(processHeartDatagram()));
 
     //////*********初始化控制台摄像头控制命令端口9092*************////////
-    cameraControlUDP = new QUdpSocket(this);
-    cameraControlUDP->bind(9092, QUdpSocket::ShareAddress);
-    connect(cameraControlUDP, SIGNAL(readyRead()), this, SLOT(processcHeartDatagram()));
+    //ricann todo
+    //cameraControlUDP = new QUdpSocket(this);
+    //cameraControlUDP->bind(9092, QUdpSocket::ShareAddress);
+    //connect(cameraControlUDP, SIGNAL(readyRead()), this, SLOT(processcHeartDatagram()));
 
     //////*********初始化设备开关控制端口9000************////////
     powerUDP = new QUdpSocket(this);

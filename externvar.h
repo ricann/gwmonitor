@@ -1,10 +1,16 @@
 #ifndef EXTERNVAR_H
 #define EXTERNVAR_H
 
+#include <QDebug>
+#include <QFile>
 #include <QThread>
+#include <QTime>
 #include <QTimer>
+#include <QDateTime>
 #include <QUdpSocket>
 #include <QHostAddress>
+
+#include <WinSock2.h>
 
 #define K1_MAX 10
 #define T_MAX 1024
@@ -48,18 +54,20 @@ typedef struct _cam_info_{
     //目前设置节点号等于摄像头编号
     int camid;
     //摄像头是打开的还是关闭的
-    int cam_onoff;
+    int cam_on;
     //是否有视频心跳
     int cam_alive;
     //是否为选中播放的节点
     int cam_play;
+    //记录心跳来的时间
+    QTime htime;
 }cam_info_t;
 
 //标量信息
 //ricann todo
 typedef struct _scalar_info_{
     //目前还没改到标量部分，先留好接口
-    int todo;
+    int scalar_todo;
 }scalar_info_t;
 
 //节点的详细信息
@@ -78,6 +86,8 @@ typedef struct _node_info_{
     scalar_info_t scalar_info;
 
 }node_info_t;
+
+extern node_info_t node_info[];
 
 extern int replay;
 extern int yuv_debug;
