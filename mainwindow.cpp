@@ -46,31 +46,7 @@ QCustomPlot* cp[LENGTH_CP];
 int showCameList[MAX_PLAY_NUM];
 int win_camera[MAX_PLAY_NUM];//0 default
 
-int camera_no_real = 0;
-int camera_no_local = 0;
-char tmp_buf_r_total[MAXLINE];
-char tmp_buf_l_total[MAXLINE];
-Frame_header *frame_header_real = (Frame_header*)malloc(sizeof(Frame_header));
-Frame_header *frame_header_local = (Frame_header*)malloc(sizeof(Frame_header));
-
-
 int replay = 0;
-int first_fb = 0;
-int tick_now = 0;
-int frame_cur_loca;
-int speed_change_v = 0;
-int continuous_change = 1;
-uint_fast64_t totalRecords = 0;
-
-FILE *existed_vs = NULL;
-FILE *existed_v_s = NULL;
-FILE *existed_v_e = NULL;
-
-QStringList strlist;
-QString strVideos;
-QByteArray video_frag;
-char *file_v;
-QStringList::iterator ii;
 
 int yuv_debug, video_debug;
 void config_read(int* yuv_debug, int* video_debug);
@@ -1364,9 +1340,6 @@ void config_read(int* yuv_debug, int* video_debug)
 
 void MainWindow::all_stop()
 {
-    free(frame_header_real);
-    free(frame_header_local);
-
     recv_thread->terminate();
     decode_thread->terminate();
     show_thread->terminate();
@@ -1374,7 +1347,6 @@ void MainWindow::all_stop()
     recv_thread->wait();
     decode_thread->wait();
     show_thread->wait();
-
 }
 
 //ricann todo
