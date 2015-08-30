@@ -90,20 +90,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui = new Ui::MainWindow;
     ui->setupUi(this);
 
-    //初始化node_info全局变量
-    memset(node_info, 0, sizeof(node_info));
-    for(int i=1; i<=MAX_NODE_NUM; i++) {
-        node_info[i].nodeid = i;
-        node_info[i].cam_info.camid = i;
-    }
+    //ricann todo, 配置文件中可以配置更多的内容，首先读取配置文件初始化程序中的变量
+    config_read(&yuv_debug, &video_debug);
+
+    init_nodeinfo();
 
     luaGw = new LuaGw(this); //标量转发程序
 
     //ricann todo
     //resetTime = new ResetTimeThread(); //定时关闭视频传输线程
     //resetTime->start();
-
-    config_read(&yuv_debug, &video_debug);
 
     connect(this,SIGNAL(newsCome(int,int)),this,SLOT(refreshPlot(int,int)));//有数据来到，刷新折线图
 
@@ -128,10 +124,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     //获取选中标量
     connect(ui->treeWidget_plot, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
             this, SLOT(treeItemClickSlot(QTreeWidgetItem*,int)));
-    //每次选中视频节点则触发播放按钮 add at 15/07/28
-    //获取选中视频节点
+
+    //ricann 20150830
     connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
-            this, SLOT(call_on_treeBtn_clicked(QTreeWidgetItem*,int)));
+            this, SLOT(slot_vtree_click(QTreeWidgetItem*,int)));
+    connect(ui->treeBtn, SIGNAL(clicked()),
+            this, SLOT(slot_vtree_play()));
+
 
     ui->video->installEventFilter(this);
 
@@ -208,7 +207,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     treeIntNode.insert(10,tr("测试10"));
 
 
-    setVideoTree();
+    //setVideoTree();
     setScalarTree();
 
     /*------将标量Button写入buttonList中-------*/
@@ -246,8 +245,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     (*decode_thread).start();
     (*show_thread).start();
 
-    /********************************************/
+    connect(recv_thread, SIGNAL(sig_setvtree()),
+            this, SLOT(slot_vtree_set()));
 
+    /********************************************/
+    //ricann todo, 初始化设置当前tab页面，不使用下面的判断方法
     int tabIndex=ui->map_TabWidget->currentIndex();
     switch(tabIndex)//判断当前Tab页面
     {
@@ -266,6 +268,29 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 
 
+}
+
+//初始化node_info全局变量
+void MainWindow::init_nodeinfo()
+{
+    memset(node_info, 0, sizeof(node_info));
+    for(int i=1; i<=MAX_NODE_NUM; i++) {
+        node_info[i].nodeid = i;
+        node_info[i].cam_info.camid = i;
+    }
+
+    //ricann todo, 下面的信息可以做到配置文件中来进行配置
+    memcpy(node_info[1].name, "十八墩", sizeof("十八墩"));
+    memcpy(node_info[4].name, "镇北台中间", sizeof("镇北台中间"));
+    memcpy(node_info[5].name, "建安堡", sizeof("建安堡"));
+    memcpy(node_info[6].name, "镇北台南墙", sizeof("镇北台南墙"));
+    memcpy(node_info[7].name, "镇北台北墙", sizeof("镇北台北墙"));
+
+    node_info[1].is_used = TRUE;
+    node_info[4].is_used = TRUE;
+    node_info[5].is_used = TRUE;
+    node_info[6].is_used = TRUE;
+    node_info[7].is_used = TRUE;
 }
 
 //------------------画折线图------------------
@@ -549,11 +574,110 @@ void MainWindow::timeForecast(QString code2, int node2)
     avg2=sum2/(count-1);
 }
 
+void MainWindow::slot_vtree_set()
+{
+    QTreeWidgetItem *item;
+
+    ui->treeWidget->clear();
+    ui->treeWidget->setColumnCount(1);
+    ui->treeWidget->setHeaderLabel(tr("视频节点"));
+    for(int i=1; i<=MAX_NODE_NUM; i++)
+    {
+        if(!node_info[i].is_used)
+            continue;
+
+        if(!node_info[i].cam_info.cam_alive)
+            continue;
+
+        item=new QTreeWidgetItem();
+        item->setText(0, QString(node_info[i].name));
+        ui->treeWidget->addTopLevelItem(item);
+        if(node_info[i].cam_info.cam_play == TRUE)
+            item->setCheckState(0, Qt::Checked);
+        else
+            item->setCheckState(0, Qt::Unchecked);
+    }
+
+    ui->treeWidget->expandAll();
+    ui->treeWidget->setSelectionMode(QAbstractItemView::MultiSelection);
+    ui->treeWidget->setHeaderHidden(true);//treeWidget的表头颜色不知道如何更改，所以直接将表头隐藏
+}
+
+void MainWindow::slot_vtree_click(QTreeWidgetItem * item, int column)
+{
+    QString itext;
+
+    itext = item->text(column);
+
+    //将节点是否选中的状态更新到node_info中
+    for(int i=1; i<=MAX_NODE_NUM; i++) {
+        if(!node_info[i].is_used)
+            continue;
+
+        if(!node_info[i].cam_info.cam_alive)
+            continue;
+
+        if(itext.compare(QString(node_info[i].name)))
+            continue;
+
+        if(item->checkState(0) == Qt::Checked)
+        {
+            qDebug() << "[slot_vtree_click]click: " << i << endl;
+            node_info[i].cam_info.cam_play = TRUE;
+        } else {
+            qDebug() << "[slot_vtree_click]unclick: " << i << endl;
+            node_info[i].cam_info.cam_play = FALSE;
+        }
+        break;
+    }
+}
+
+void MainWindow::slot_vtree_play()
+{
+    qDebug() << "[slot_vtree_play]clicked" << endl;
+
+    QList<int> treeLeaf;
+    treeLeaf.clear();
+
+    int selectedCount = 0;
+    int topChildCount=ui->treeWidget->topLevelItemCount();
+    for(int i=0;i<topChildCount;i++)
+    {
+        QTreeWidgetItem *childItem=ui->treeWidget->topLevelItem(i);
+
+        if(childItem->checkState(0) == Qt::Checked) {
+            selectedCount++;
+            treeLeaf.append(treeNodeInt[childItem->text(0)]);
+            qDebug()<<childItem->text(0)<<"  ## "<<treeNodeInt[childItem->text(0)];
+        }
+    }
+
+    ///************清空存储的SDL窗口绘图的点集***********///
+    //清除本地点的数组
+    points.clear();
+    //清除发送端点的数组
+    if(changedPoints != NULL) {
+        changedPoints->clear();
+        for(int i = 0;i < 4;i++) {
+            emit pointsReady(win_camera[i]);
+        }
+    }
+    ///**********************************************///
+    int new_win_came[4] = {0};
+    for(int i = 0;i<4&&i!=treeLeaf.size();i++){
+        new_win_came[i] = treeLeaf.at(i);
+    }
+
+    if(video_allowed==1){
+        setShowCamera(new_win_came);
+        video_sure=1;
+    }
+}
+
 void MainWindow::addJavaScriptObject()
 {
     ui->webView->page()->mainFrame()->addToJavaScriptWindowObject("info",info);
 }
-
 
 void MainWindow::test()
 {
@@ -1329,56 +1453,6 @@ void MainWindow::tabIndexChanged()
     }
 }
 
-/////////////////----------触发播放按钮-------------///////////////////
-void MainWindow::call_on_treeBtn_clicked(QTreeWidgetItem *item, int column)
-{
-    Q_UNUSED(item);
-    Q_UNUSED(column);
-    on_treeBtn_clicked();
-}
-
-/////////////////---------树形节点视频选择播放----------////////////////
-void MainWindow::on_treeBtn_clicked()
-{
-    QList<int> treeLeaf;
-    treeLeaf.clear();  
-
-    int selectedCount = 0;
-    int topChildCount=ui->treeWidget->topLevelItemCount();
-    for(int i=0;i<topChildCount;i++)
-    {
-        QTreeWidgetItem *childItem=ui->treeWidget->topLevelItem(i);
-
-        if(childItem->checkState(0) == Qt::Checked) {
-            selectedCount++;
-            treeLeaf.append(treeNodeInt[childItem->text(0)]);
-            qDebug()<<childItem->text(0)<<"  ## "<<treeNodeInt[childItem->text(0)];
-        }
-    }
-
-    ///************清空存储的SDL窗口绘图的点集***********///
-    //清除本地点的数组
-    points.clear();
-    //清除发送端点的数组
-    if(changedPoints != NULL) {
-        changedPoints->clear();
-        for(int i = 0;i < 4;i++) {
-            emit pointsReady(win_camera[i]);
-        }
-    }
-    ///**********************************************///
-    int new_win_came[4] = {0};
-    for(int i = 0;i<4&&i!=treeLeaf.size();i++){
-        new_win_came[i] = treeLeaf.at(i);
-    }
-
-    if(video_allowed==1){
-        setShowCamera(new_win_came);
-        video_sure=1;
-    }
-
-}
-
 ////////********获取选中的网关节点和采集子节点编号并将其赋给变量gatewayNo和sensorNo**********///////
 void MainWindow::treeItemClickSlot(QTreeWidgetItem* item,int column)
 {
@@ -1726,52 +1800,6 @@ void MainWindow::on_pushButton_clicked() //进入视频控制台
         vc->show();
 }
 
-void MainWindow::processHeartDatagram()
-{
-    QHostAddress sender;
-    quint16 senderPort;
-    // 拥有等待的数据报
-    while(videoControlUDP->hasPendingDatagrams())
-    {
-        QByteArray datagram;
-        // 让datagram的大小为等待处理的数据报的大小，这样才能接收到完整的数据
-        datagram.resize(videoControlUDP->pendingDatagramSize());
-        // 接收数据报，将其存放到datagram中
-        videoControlUDP->readDatagram(datagram.data(), datagram.size(),&sender, &senderPort);
-        // 读取cameraNo
-        int *pcameraNo;
-        pcameraNo = (int *)datagram.data();
-        ///***********小端转大端**********///
-        quint8 *p = (quint8*)pcameraNo;
-        int cameraNo = ((quint32)*p<<24)+((quint32)*(p+1)<<16)+
-               ((quint32)*(p+2)<<8)+(quint32)*(p+3);
-        ///*****************************///
-        //************更新ip和端口***********//
-        cameraNoToIp[cameraNo] = sender;
-        cameraNoToVPort[cameraNo] = senderPort;
-
-        if(!cameraAlive.contains(cameraNo))
-        {
-            resetTime->resetTimeByCameraNo(cameraNo);
-            cameraAlive.append(cameraNo);
-            setVideoTree();
-            emit freshCameraList();
-        }
-        if(cameraNoToTimer[cameraNo] == NULL)
-        {
-            cameraNoToTimer[cameraNo] = new QTimer(this);
-            connect(cameraNoToTimer[cameraNo],SIGNAL(timeout()),this,SLOT(setCameraState()));
-        }
-
-        cameraNoToTimer[cameraNo]->start(300*1000);
-        cameraNoToTimer[cameraNo]->setSingleShot(true);
-        //打印视频控制程序心跳到日志文件videoHeartLog.txt!
-        std::ofstream fout("videoHeartLog.txt",ios::app);
-        string time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toStdString();
-        fout << time << ": Coming cameraNO is: " << cameraNo << endl;
-    }
-}
-
 void MainWindow::processcHeartDatagram()
 {
     QHostAddress sender;
@@ -1800,7 +1828,8 @@ void MainWindow::processcHeartDatagram()
         {
             resetTime->resetTimeByCameraNo(cameraNo);
             cameraAlive.append(cameraNo);
-            setVideoTree();
+            //ricann todo
+            //setVideoTree();
             emit freshCameraList();
         }
         if(cameraNoToTimer[cameraNo] == NULL)
@@ -1875,7 +1904,8 @@ void MainWindow::setCameraState()
 //            qDebug() << "cameraDied:" << i.key() << endl;
         }
     }
-    setVideoTree();
+    //ricann todo
+    //setVideoTree();
     emit freshCameraList();
 }
 //?

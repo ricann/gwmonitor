@@ -18,6 +18,7 @@
 #define MAX_NODE_NUM        7
 #define MAX_CAMERA_NUM      MAX_NODE_NUM
 #define MAX_PLAY_NUM        4
+#define MAX_STR_LEN         256
 
 #define MAXLINE sizeof(Frame_header)+T_MAX
 
@@ -77,6 +78,8 @@ typedef struct _node_info_{
     int nodeid;
     //节点有没有被使用
     int is_used;
+    //节点名称
+    char name[MAX_STR_LEN];
 
     //节点的ip和port
     QHostAddress ip;

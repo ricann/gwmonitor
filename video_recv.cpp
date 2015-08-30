@@ -125,6 +125,7 @@ void VideoRecv::slot_recvheart()
 
         if(node_info[camid].cam_info.cam_alive == FALSE) {
             //ricann todo
+            emit sig_setvtree();
             //setVideoTree();
             //emit freshCameraList();
         }
@@ -159,8 +160,9 @@ void VideoRecv::slot_timeout()
 
         if(node_info[i].cam_info.htime.elapsed() > VIDEO_HEART_TIMEOUT) {
             node_info[i].cam_info.cam_alive = FALSE;
+            node_info[i].cam_info.cam_play = FALSE;
             //ricann todo
-            //emit a_signal();
+            emit sig_setvtree();
         }
 
     }
@@ -188,7 +190,10 @@ void RecvThread::run()
 
     //送出去的信号
     connect(&vr, SIGNAL(sig_dataready()),
-            decode_thread, SIGNAL(sig_dataarrived()));
+            this, SIGNAL(sig_dataarrived()));
+
+    connect(&vr, SIGNAL(sig_setvtree()),
+            this, SIGNAL(sig_setvtree()));
 
     exec();//(除ui线程之外的其他)线程用QThread::exec()开始事件循环
 }

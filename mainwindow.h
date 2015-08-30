@@ -89,6 +89,9 @@ public:
 
     void setShowCamera(int*);//选择显示摄像头时调用
 
+    //ricann 20150830
+    void init_nodeinfo();
+
 signals:
     void newsCome(int,int);
     void pointsReady(int);
@@ -113,6 +116,11 @@ signals:
     
 private slots:
 
+    //ricann todo
+    void slot_vtree_set();
+    void slot_vtree_click(QTreeWidgetItem * item, int column);
+    void slot_vtree_play();
+
     void addJavaScriptObject();
     void test();
     void processPendingDatagram();
@@ -125,10 +133,8 @@ private slots:
     void refreshPlot(int gatewayNo, int sensorNo);
     void setShowFlag(int value);
     void treeItemClickSlot(QTreeWidgetItem* item,int column);
-    void call_on_treeBtn_clicked(QTreeWidgetItem* item,int column);
 
     void sendPoints(int);
-    void processHeartDatagram();
     void processcHeartDatagram();
     void processPowerDatagram();
     void setCameraState();
@@ -145,8 +151,6 @@ private slots:
     void on_mapReplayBtn_clicked();
 
     void replaySlot();
-
-    void on_treeBtn_clicked();
 
     void tabIndexChanged();
     void on_voltageBtn_clicked();

@@ -52,6 +52,7 @@ public:
 
 signals:
     void sig_dataready();
+    void sig_setvtree();
 
 private slots:
     void slot_recvdata();
@@ -70,7 +71,7 @@ public:
     void run();
 
 signals:
-
+    void sig_setvtree();
 };
 
 extern udppkt_ring_t video_ring;
