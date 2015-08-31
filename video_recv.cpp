@@ -124,10 +124,7 @@ void VideoRecv::slot_recvheart()
         }
 
         if(node_info[camid].cam_info.cam_alive == FALSE) {
-            //ricann todo
             emit sig_setvtree();
-            //setVideoTree();
-            //emit freshCameraList();
         }
 
         //更新node_info

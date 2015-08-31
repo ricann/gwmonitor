@@ -135,14 +135,9 @@ private slots:
     void treeItemClickSlot(QTreeWidgetItem* item,int column);
 
     void sendPoints(int);
-    void processcHeartDatagram();
     void processPowerDatagram();
     void setCameraState();
     void setGPSState();
-
-/**********************************/
-    void all_stop();
-/**********************************/
 
     void on_mapChgBtn_clicked();
 
@@ -206,7 +201,6 @@ private:
 
     void addToGraph(int index, double lon, double lat);
 
-    void setVideoTree();
     void setScalarTree();
 
     Ui::MainWindow *ui;

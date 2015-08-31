@@ -133,13 +133,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     posReceiver->bind(9992, QUdpSocket::ShareAddress);
     connect(posReceiver, SIGNAL(readyRead()), this, SLOT(posDatagram()));
 
-
-    //////*********初始化控制台摄像头控制命令端口9092*************////////
-    //ricann todo
-    //cameraControlUDP = new QUdpSocket(this);
-    //cameraControlUDP->bind(9092, QUdpSocket::ShareAddress);
-    //connect(cameraControlUDP, SIGNAL(readyRead()), this, SLOT(processcHeartDatagram()));
-
     //////*********初始化设备开关控制端口9000************////////
     powerUDP = new QUdpSocket(this);
     powerUDP->bind(9000, QUdpSocket::ShareAddress);
@@ -184,6 +177,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 
     //setVideoTree();
+    slot_vtree_set();
     setScalarTree();
 
     /*------将标量Button写入buttonList中-------*/
@@ -356,7 +350,6 @@ void MainWindow::setupDemo(QCustomPlot *customPlot)
 
 MainWindow::~MainWindow()
 {
-    all_stop();
     delete ui;
 }
 
@@ -1285,29 +1278,6 @@ void MainWindow::setScalarTree()
     ui->treeWidget_plot->setHeaderHidden(true);//treeWidget_plot的表头颜色不知道如何更改，所以直接将表头隐藏
 }
 
-//设置视频树形节点
-void MainWindow::setVideoTree()
-{
-    ui->treeWidget->clear();
-    ui->treeWidget->setColumnCount(1);
-    ui->treeWidget->setHeaderLabel(tr("视频节点"));
-    for(int i=0; i<cameraAlive.size(); i++)
-    {
-        int nodeNo = cameraAlive.at(i);
-        if(treeIntNode.contains(nodeNo))
-        {
-            QTreeWidgetItem *note=new QTreeWidgetItem(QStringList(treeIntNode[nodeNo]));
-            ui->treeWidget->addTopLevelItem(note);
-            note->setCheckState(0, Qt::Unchecked);
-        }
-    }
-    ui->treeWidget->expandAll();
-    ui->treeWidget->setSelectionMode(QAbstractItemView::MultiSelection);
-    ui->treeWidget->setHeaderHidden(true);//treeWidget的表头颜色不知道如何更改，所以直接将表头隐藏
-}
-
-//////////////******视频部分*******////////////////
-
 void config_read(int* yuv_debug, int* video_debug)
 {
     FILE *fd;
@@ -1336,17 +1306,6 @@ void config_read(int* yuv_debug, int* video_debug)
         now = fgets(read, 100, fd);
     }
     fclose(fd);
-}
-
-void MainWindow::all_stop()
-{
-    recv_thread->terminate();
-    decode_thread->terminate();
-    show_thread->terminate();
-
-    recv_thread->wait();
-    decode_thread->wait();
-    show_thread->wait();
 }
 
 //ricann todo
@@ -1770,55 +1729,6 @@ void MainWindow::on_pushButton_clicked() //进入视频控制台
     }
     if(times > 0)
         vc->show();
-}
-
-void MainWindow::processcHeartDatagram()
-{
-    QHostAddress sender;
-    quint16 senderPort;
-    // 拥有等待的数据报
-    while(cameraControlUDP->hasPendingDatagrams())
-    {
-        QByteArray datagram;
-        // 让datagram的大小为等待处理的数据报的大小，这样才能接收到完整的数据
-        datagram.resize(cameraControlUDP->pendingDatagramSize());
-        // 接收数据报，将其存放到datagram中
-        cameraControlUDP->readDatagram(datagram.data(), datagram.size(),&sender, &senderPort);
-        // 读取cameraNo
-        int *pcameraNo;
-        pcameraNo = (int *)datagram.data();
-        ///***********小端转大端**********///
-        quint8 *p = (quint8*)pcameraNo;
-        int cameraNo = ((quint32)*p<<24)+((quint32)*(p+1)<<16)+
-               ((quint32)*(p+2)<<8)+(quint32)*(p+3);
-        ///*****************************///
-        //************更新ip和端口***********//
-        cameraNoToCIp[cameraNo] = sender;
-        cameraNoToCPort[cameraNo] = senderPort;
-
-        if(!cameraAlive.contains(cameraNo))
-        {
-            resetTime->resetTimeByCameraNo(cameraNo);
-            cameraAlive.append(cameraNo);
-            //ricann todo
-            //setVideoTree();
-            emit freshCameraList();
-        }
-        if(cameraNoToTimer[cameraNo] == NULL)
-        {
-            cameraNoToTimer[cameraNo] = new QTimer(this);
-            connect(cameraNoToTimer[cameraNo],SIGNAL(timeout()),this,SLOT(setCameraState()));
-        }
-
-        cameraNoToTimer[cameraNo]->start(300*1000);
-        cameraNoToTimer[cameraNo]->setSingleShot(true);
-
-        //打印摄像头控制程序心跳到日志文件cameracontrolHeartLog.txt!
-        std::ofstream fout("cameraControlHeartLog.txt",ios::app);
-        string time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toStdString();
-        fout << time << ": Coming cameraNO is: " << cameraNo << endl;
-    }
-    
 }
 
 void MainWindow::processPowerDatagram()
