@@ -61,8 +61,6 @@ QDateEdit *MainWindow::end = NULL;
 /********************主窗口界面开始*********************/
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    DisplayPara showPara;
-
     ui = new Ui::MainWindow;
     ui->setupUi(this);
 
@@ -70,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     config_read(&yuv_debug, &video_debug);
 
     init_nodeinfo();
+    init_video();
 
     luaGw = new LuaGw(this); //标量转发程序
 
@@ -100,15 +99,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     //获取选中标量
     connect(ui->treeWidget_plot, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
             this, SLOT(treeItemClickSlot(QTreeWidgetItem*,int)));
-
-    //ricann 20150830
-    connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
-            this, SLOT(slot_vtree_click(QTreeWidgetItem*,int)));
-    connect(ui->treeBtn, SIGNAL(clicked()),
-            this, SLOT(slot_vtree_play()));
-
-
-    ui->video->installEventFilter(this);
 
     info = new Info(this);
 
@@ -176,8 +166,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     treeIntNode.insert(10,tr("测试10"));
 
 
-    //setVideoTree();
-    slot_vtree_set();
     setScalarTree();
 
     /*------将标量Button写入buttonList中-------*/
@@ -204,19 +192,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     /*******************视频部分*********************/
     //ricann
-    showPara.my_height = ui->video->height();
-    showPara.my_width = ui->video->width();
-    showPara.my_winid = (unsigned int)ui->video->winId();
 
-    recv_thread = new RecvThread();
-    decode_thread = new DecodeThread();
-    show_thread = new ShowThread(showPara);
-    (*recv_thread).start();
-    (*decode_thread).start();
-    (*show_thread).start();
-
-    connect(recv_thread, SIGNAL(sig_setvtree()),
-            this, SLOT(slot_vtree_set()));
 
     /********************************************/
     //ricann todo, 初始化设置当前tab页面，不使用下面的判断方法
@@ -235,9 +211,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         draw_allowed=1;
         break;
     }
-
-
-
 }
 
 //初始化node_info全局变量
@@ -261,6 +234,35 @@ void MainWindow::init_nodeinfo()
     node_info[5].is_used = TRUE;
     node_info[6].is_used = TRUE;
     node_info[7].is_used = TRUE;
+}
+
+//对视频相关的进行初始化
+void MainWindow::init_video()
+{
+    DisplayPara showPara;
+
+    connect(ui->treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
+            this, SLOT(slot_vtree_click(QTreeWidgetItem*,int)));
+    connect(ui->treeBtn, SIGNAL(clicked()),
+            this, SLOT(slot_vtree_play()));
+
+    ui->video->installEventFilter(this);
+
+    showPara.my_height = ui->video->height();
+    showPara.my_width = ui->video->width();
+    showPara.my_winid = (unsigned int)ui->video->winId();
+
+    recv_thread = new RecvThread();
+    decode_thread = new DecodeThread();
+    show_thread = new ShowThread(showPara);
+    (*recv_thread).start();
+    (*decode_thread).start();
+    (*show_thread).start();
+
+    connect(recv_thread, SIGNAL(sig_setvtree()),
+            this, SLOT(slot_vtree_set()));
+
+    slot_vtree_set();
 }
 
 //------------------画折线图------------------

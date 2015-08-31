@@ -91,6 +91,8 @@ public:
 
     //ricann 20150830
     void init_nodeinfo();
+    //ricann 20150831
+    void init_video();
 
 signals:
     void newsCome(int,int);
