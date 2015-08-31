@@ -71,6 +71,7 @@ private:
     QString selectedMLink;
     QString selectedPowerNo;
 
+    QUdpSocket *camera_sock;
 };
 
 #endif // VIDEOCONTROL_H

@@ -28,7 +28,6 @@ SOURCES += main.cpp\
     paintableVedio.cpp \
     luagw.cpp \
     videoControl.cpp \
-    resetTime.cpp \
     dragablebutton.cpp \
     dropableplot.cpp \
     power.cpp \
@@ -51,7 +50,6 @@ HEADERS  += mainwindow.h \
     paintableVedio.h \
     luagw.h \
     videoControl.h \
-    resetTime.h \
     dragablebutton.h \
     dropableplot.h \
     power.h \

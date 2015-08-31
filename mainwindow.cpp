@@ -6,9 +6,6 @@
 //node_info[i]中的下标i同时也表示第i个节点
 node_info_t node_info[MAX_NODE_NUM+1];
 
-QList<QPoint> points;
-QList<QPoint> fourPointsWin[4];
-QList<QPoint> *changedPoints = NULL;
 QList<QPushButton*> buttonList;
 QMap<int,QHostAddress> cameraNoToIp;//摄像头编号映射到节点ip
 QMap<int,QHostAddress> cameraNoToCIp;//摄像头编号映射到摄像头控制节点ip
@@ -20,7 +17,7 @@ QMap<int,quint16> powerNoToPort;//设备开关编号映射到开关控制命令�
 QMap<int,quint8> powerNoToState;//节点编号映射节点开关状态
 
 QUdpSocket *videoControlUDP;//传输视频控制命令的udpsocket
-QUdpSocket *cameraControlUDP;//摄像头控制命令的udpsocket
+
 QUdpSocket *powerUDP;//传输设备接口开关控制命令的udpsocket
 QMap<int,QTimer*> cameraNoToTimer;
 QList<int> cameraAlive;//摄像头存活节点维护表
@@ -41,10 +38,6 @@ int plot_finished_flag=1;
 
 enum {LENGTH_CP = 4};
 QCustomPlot* cp[LENGTH_CP];
-
-
-int showCameList[MAX_PLAY_NUM];
-int win_camera[MAX_PLAY_NUM];//0 default
 
 int replay = 0;
 
@@ -72,10 +65,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     init_video();
 
     luaGw = new LuaGw(this); //标量转发程序
-
-    //ricann todo
-    //resetTime = new ResetTimeThread(); //定时关闭视频传输线程
-    //resetTime->start();
 
     connect(this,SIGNAL(newsCome(int,int)),this,SLOT(refreshPlot(int,int)));//有数据来到，刷新折线图
 

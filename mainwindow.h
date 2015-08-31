@@ -15,7 +15,7 @@
 #include "video_show.h"
 #include "luagw.h"
 #include "videoControl.h"
-#include "resetTime.h"
+
 #include "process.h"
 
 #include <Winsock2.h>
@@ -206,7 +206,6 @@ private:
     Process *w;
 
     LuaGw *luaGw;
-    ResetTimeThread * resetTime;
 
     QUdpSocket *receiver;
     QUdpSocket *stateReceiver;

@@ -1,11 +1,9 @@
 #include "videoControl.h"
 #include "ui_videoControl.h"
 
-#define MAX_PLAY_NUM 4
-
 //extern from MainWindow
 extern QUdpSocket *videoControlUDP;
-extern QUdpSocket *cameraControlUDP;
+
 extern QUdpSocket *powerUDP;
 extern QMap<int,QHostAddress> cameraNoToIp;
 extern QMap<int,quint16> cameraNoToVPort;
@@ -24,6 +22,11 @@ VideoControl::VideoControl(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle(QObject::tr("控制台"));
+
+    //ricann todo
+    camera_sock = new QUdpSocket(this);
+    camera_sock->bind(9092, QUdpSocket::ShareAddress);
+    //connect(camera_sock, SIGNAL(readyRead()), this, SLOT(processcHeartDatagram()));
 
     connect(this, SIGNAL(freshCameraList()), this, SLOT(freshCameraListAndShow()));
     connect(this, SIGNAL(freshPowerList(int,char,char,char,char)), this, SLOT(freshPowerListAndShow(int,char,char,char,char)));
@@ -58,7 +61,7 @@ void VideoControl::sentOrderToCamera(int cameraNo, char order)
     port = cameraNoToCPort[cameraNo];
     if(!ip.isNull()) {
         out << orders;
-        cameraControlUDP->writeDatagram(datagram,ip,port);
+        camera_sock->writeDatagram(datagram,ip,port);
     }
     else
         qDebug() << "IP is NULL" << endl;

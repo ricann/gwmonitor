@@ -9,8 +9,6 @@
 
 using namespace std;
 
-extern QList<QPoint> points;//存放SDL画线的点的集合
-
 ShowThread *show_thread;
 
 VideoShow::VideoShow(const DisplayPara myDispara)
@@ -350,6 +348,8 @@ void VideoShow::slot_showvideo()
         frameFinished = 0;
 
         //添加函数在SDL窗口画线
+        //ricann todo
+        /*
         if(points.size() >= 2){
             int sWinNo,eWinNo;
             for(int i = 0;i < points.size()-1;i++) {
@@ -364,6 +364,7 @@ void VideoShow::slot_showvideo()
                 }
             }
         }
+        //*/
 
         SDL_DisplayYUVOverlay(bmp, &dst);
         SDL_PollEvent(&event_sdl);
