@@ -64,7 +64,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui = new Ui::MainWindow;
     ui->setupUi(this);
 
-    //ricann todo, 配置文件中可以配置更多的内容，首先读取配置文件初始化程序中的变量
+    //ricann todo
+    //配置文件中可以配置更多的内容，首先读取配置文件初始化程序中的变量
     config_read(&yuv_debug, &video_debug);
 
     init_nodeinfo();
@@ -90,8 +91,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(this, SIGNAL(freshPowerList(int, char,char,char,char)),
             vc, SIGNAL(freshPowerList(int, char,char,char,char)));
     vc->hide();
-
-    connect(this, SIGNAL(pointsReady(int)), this, SLOT(sendPoints(int)));
 
     //获取当前tab页面index
     connect(ui->map_TabWidget, SIGNAL(currentChanged(int)),
@@ -189,28 +188,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     start = ui->dateEdit_start;
     end = ui->dateEdit_end;
-
-    /*******************视频部分*********************/
-    //ricann
-
-
-    /********************************************/
-    //ricann todo, 初始化设置当前tab页面，不使用下面的判断方法
-    int tabIndex=ui->map_TabWidget->currentIndex();
-    switch(tabIndex)//判断当前Tab页面
-    {
-    case 0:
-        map_allowed=1;
-        refreshMap();
-        timer->start(5000);
-        break;
-    case 1:
-        video_allowed=1;
-        break;
-    case 2:
-        draw_allowed=1;
-        break;
-    }
 }
 
 //初始化node_info全局变量
@@ -245,8 +222,6 @@ void MainWindow::init_video()
             this, SLOT(slot_vtree_click(QTreeWidgetItem*,int)));
     connect(ui->treeBtn, SIGNAL(clicked()),
             this, SLOT(slot_vtree_play()));
-
-    ui->video->installEventFilter(this);
 
     showPara.my_height = ui->video->height();
     showPara.my_width = ui->video->width();
@@ -605,44 +580,7 @@ void MainWindow::slot_vtree_click(QTreeWidgetItem * item, int column)
 
 void MainWindow::slot_vtree_play()
 {
-    qDebug() << "[slot_vtree_play]clicked" << endl;
 
-    QList<int> treeLeaf;
-    treeLeaf.clear();
-
-    int selectedCount = 0;
-    int topChildCount=ui->treeWidget->topLevelItemCount();
-    for(int i=0;i<topChildCount;i++)
-    {
-        QTreeWidgetItem *childItem=ui->treeWidget->topLevelItem(i);
-
-        if(childItem->checkState(0) == Qt::Checked) {
-            selectedCount++;
-            treeLeaf.append(treeNodeInt[childItem->text(0)]);
-            qDebug()<<childItem->text(0)<<"  ## "<<treeNodeInt[childItem->text(0)];
-        }
-    }
-
-    ///************清空存储的SDL窗口绘图的点集***********///
-    //清除本地点的数组
-    points.clear();
-    //清除发送端点的数组
-    if(changedPoints != NULL) {
-        changedPoints->clear();
-        for(int i = 0;i < 4;i++) {
-            emit pointsReady(win_camera[i]);
-        }
-    }
-    ///**********************************************///
-    int new_win_came[4] = {0};
-    for(int i = 0;i<4&&i!=treeLeaf.size();i++){
-        new_win_came[i] = treeLeaf.at(i);
-    }
-
-    if(video_allowed==1){
-        setShowCamera(new_win_came);
-        video_sure=1;
-    }
 }
 
 void MainWindow::addJavaScriptObject()
@@ -1310,51 +1248,6 @@ void config_read(int* yuv_debug, int* video_debug)
     fclose(fd);
 }
 
-//ricann todo
-//for(int i = 0; i < MAX_PLAY_NUM; ++i){
-//    if(win_camera[i] == camera_no){
-
-void MainWindow::setShowCamera(int *new_win_camera){
-    for(int i = 0; i < MAX_PLAY_NUM; ++i){
-        int old_camera = win_camera[i];
-
-        if(old_camera > 0)
-            play_or_not[old_camera-1] = 0;
-    }
-/*
-    for(int i = 0; i < MAX_PLAY_NUM; ++i){
-        int new_camera = new_win_camera[i];
-        win_camera[i] = new_camera;
-
-        if(new_camera>0){
-            switch(i){
-            case 0:
-                emit resetWinCame0(new_camera, 1);
-//                cout<<"emit setWinCame0"<<endl;
-                break;
-            case 1:
-                emit resetWinCame1(new_camera, 2);
-//                cout<<"emit setWinCame1"<<endl;
-                break;
-            case 2:
-                emit resetWinCame2(new_camera, 3);
-//                cout<<"emit setWinCame2"<<endl;
-                break;
-            case 3:
-                emit resetWinCame3(new_camera, 4);
-//                cout<<"emit setWinCame3"<<endl;
-                break;
-            default:
-                break;
-            }
-
-            play_or_not[new_camera-1] = 1;
-        }
-
-    }
-    //*/
-}
-
 ///////////******在tab间切换槽函数******//////////////
 void MainWindow::tabIndexChanged()
 {
@@ -1594,125 +1487,6 @@ void MainWindow::on_surface_salinityBtn_clicked()
 {
     code = "4_w01008_s";
     setupPlot();
-}
-
-//SDL视频窗口事件过滤器
-bool MainWindow::eventFilter(QObject *obj, QEvent *event)
-{
-    if (obj == ui->video) {
-        //处理鼠标双击事件
-        if (event->type() == QEvent::MouseButtonDblClick) {
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            int x = mouseEvent->x();
-            int y = mouseEvent->y();  
-            int ww = ui->video->width();
-            int hh = ui->video->height();
-            int winNo = 0;
-            int cameraNo = 0;
-
-            if(mouseEvent->button() == Qt::LeftButton) {
-                QPoint lPoint;
-                QPoint bPoint;
-
-                bPoint.setX(x);
-                bPoint.setY(y);
-                points.append(bPoint);//bPoint的缩放在了display_fuc.cpp的changePointsByWinNo函数中
-                //判定触发鼠标双击事件位置对应的视频窗口号并转换出发点的坐标
-                if(x>=0 && x<=(ww-5)/2 && y>=0 && y<=(hh-5)/2) {
-                    //一号窗口
-                    winNo = 1;
-//                    qDebug() << "win_no:" << winNo << endl;
-                }
-                else if(x>=(ww+5)/2 && x<=ww-1 && y>=0 && y<=(hh-5)/2) {
-                    //二号窗口
-                    x = x-(ww+5)/2;
-
-                    winNo = 2;
-//                    qDebug() << "win_no:" << winNo << endl;
-                }
-                else if(x>=0 && x<=(ww-5)/2 && y>=(hh+5)/2 && y<=hh-1) {
-                    //三号窗口
-                    y = y-(hh+5)/2;
-
-                    winNo = 3;
-//                    qDebug() << "win_no:" << winNo << endl;
-                }
-                else if(x>=(ww+5)/2 && x<=ww-1 && y>=(hh+5)/2 && y<=hh-1) {
-                    //四号窗口
-                    x = x-(ww+5)/2;
-                    y = y-(hh+5)/2;
-
-                    winNo = 4;
-//                    qDebug() << "win_no:" << winNo << endl;
-                }
-
-                //resize point坐标 按比例转换到480*272的yuv帧中的位置
-                lPoint.setX(x/(double)(ww/2)*480.0);
-                lPoint.setY(y/(double)(hh/2)*272.0);
-                fourPointsWin[winNo-1].append(lPoint);
-                changedPoints = fourPointsWin+winNo-1;
-
-                cameraNo = win_camera[winNo-1];
-                emit pointsReady(cameraNo);
-            }
-            else if(mouseEvent->button() == Qt::RightButton) {
-                //判定触发鼠标双击事件位置对应的视频窗口号并转换出发点的坐标
-                 if(x>=0 && x<=(ww-5)/2 && y>=0 && y<=(hh-5)/2) {
-                     //一号窗口
-                     winNo = 1;
-                 }
-                 else if(x>=(ww+5)/2 && x<=ww-1 && y>=0 && y<=(hh-5)/2) {
-                     //二号窗口
-                     winNo = 2;
-                 }
-                 else if(x>=0 && x<=(ww-5)/2 && y>=(hh+5)/2 && y<=hh-1) {
-                     //三号窗口
-                     winNo = 3;
-                 }
-                 else if(x>=(ww+5)/2 && x<=ww-1 && y>=(hh+5)/2 && y<=hh-1) {
-                     //四号窗口
-                     winNo = 4;
-                 }
-                 ///************清空存储的SDL窗口绘图的点集***********///
-                 //清除本地点的数组
-                 points.clear();
-                 //清除发送端点的数组
-                 fourPointsWin[winNo-1].clear();
-                 changedPoints = fourPointsWin+winNo-1;
-                 cameraNo = win_camera[winNo-1];
-                 emit pointsReady(cameraNo);
-                 ///**********************************************///
-            }
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    else {
-        // pass the event on to the parent class
-        return QMainWindow::eventFilter(obj, event);
-    }
-}
-
-void MainWindow::sendPoints(int cameraNo)
-{
-    QHostAddress sender = cameraNoToIp[cameraNo];
-    quint16 senderPort = cameraNoToPort[cameraNo];
-    if(!sender.isNull()) {
-//        qDebug() << "cameraNo:" << cameraNo << "senderIP:" << sender << endl;
-        QByteArray datagram;
-        QDataStream out(&datagram,QIODevice::WriteOnly);
-        out.setVersion(QDataStream::Qt_4_8);
-        out << changedPoints->size();
-        for(int i = 0;i < changedPoints->size();i++) {
-            out << changedPoints->at(i);
-        }
-        //ricann todo
-        //udpSocket_video->writeDatagram(datagram,sender,senderPort);
-    }
-    else
-         qDebug() << "IP is NULL" << endl;
 }
 
 void MainWindow::on_pushButton_clicked() //进入视频控制台

@@ -87,8 +87,6 @@ public:
     QTimer *rplTimer;
     int routeCount;
 
-    void setShowCamera(int*);//选择显示摄像头时调用
-
     //ricann 20150830
     void init_nodeinfo();
     //ricann 20150831
@@ -96,7 +94,6 @@ public:
 
 signals:
     void newsCome(int,int);
-    void pointsReady(int);
     void freshCameraList();
     void freshPowerList(int,char,char,char,char);
 
@@ -136,7 +133,6 @@ private slots:
     void setShowFlag(int value);
     void treeItemClickSlot(QTreeWidgetItem* item,int column);
 
-    void sendPoints(int);
     void processPowerDatagram();
     void setCameraState();
     void setGPSState();
@@ -236,8 +232,6 @@ private:
     QPoint nodePosOffset[NODE_NUM];
     QPoint nodePos[NODE_NUM];
 
-protected:
-    bool eventFilter(QObject *obj, QEvent *ev);
 };
 
 #endif // MAINWINDOW_H

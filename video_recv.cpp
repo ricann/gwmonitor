@@ -66,6 +66,9 @@ VideoRecv::~VideoRecv()
 
 void VideoRecv::slot_recvdata()
 {
+    int camid;
+    Frame_header *p;
+
     while(udp_sock->hasPendingDatagrams())
     {
         //ricann todo, 根据node_info中的信息对接收哪些视频信息进行限制
@@ -84,7 +87,19 @@ void VideoRecv::slot_recvdata()
                 &VRING_TAIL_FARAME_IP,
                 &VRING_TAIL_FARAME_PORT);
 
+        //ricann todo, 不知道这个判断是什么意思
         if(VRING_TAIL_FARAME_BUF[0] == '#')
+            continue;
+
+        //不在播放列表里的视频数据包不进行解析
+        p = (Frame_header *)VRING_TAIL_FARAME_BUF;
+        camid = (int)ntohl(p->camera_no);
+        if(camid<1 || camid>=MAX_CAMERA_NUM) {
+            qDebug() << "[slot_recvdata]wrong camera number:"
+                     << camid << endl;
+            continue;
+        }
+        if(node_info[camid].cam_info.cam_play == FALSE)
             continue;
 
         //get frame header
@@ -174,7 +189,7 @@ RecvThread::~RecvThread()
 {
     quit();
     wait();
-    //deleteLater();
+    deleteLater();
 }
 
 void RecvThread::run()
@@ -187,7 +202,7 @@ void RecvThread::run()
 
     //送出去的信号
     connect(&vr, SIGNAL(sig_dataready()),
-            this, SIGNAL(sig_dataarrived()));
+            decode_thread, SIGNAL(sig_dataarrived()));
 
     connect(&vr, SIGNAL(sig_setvtree()),
             this, SIGNAL(sig_setvtree()));
