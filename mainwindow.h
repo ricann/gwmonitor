@@ -23,12 +23,6 @@
 
 using namespace std;
 
-
-class Info;
-class QUdpSocket;
-class QTimer;
-class QWebView;
-
 //-------Agent模块节点状态信息------
 typedef struct {
     int16_t index;
@@ -67,12 +61,13 @@ class MainWindow : public QMainWindow
     
 public:
     explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
     static void getDataFromDB(QVector<double> &data, QString code);
     static void getTimeFromDB(QVector<double> &time, QString code);
     void setupPlot();
     void setupDemo(QCustomPlot *customPlot);
     int showFlag;
-    ~MainWindow();
+
     //---------------------------
     void paintTest();
     void setNodePos();

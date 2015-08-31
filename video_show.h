@@ -27,6 +27,9 @@ public:
     VideoShow(const DisplayPara myDispara);//contain initialization
     ~VideoShow();
 
+    //找到并打开解码器(只能打开一个解码器)
+    void SDL_init();
+
 public slots:
     void slot_showvideo();
     void resetDisPara(const DisplayPara myDispara);
@@ -61,15 +64,6 @@ private:
     int pFrameNoNow;
 
     QTimer timer;
-
-    //找到并打开解码器(只能打开一个解码器)
-    void SDL_init();
-    int changePointsByWinNo(int &x, int &y);
-    void drawPoint(SDL_Overlay *yuv, int x, int y);
-    void drawHLine(SDL_Overlay *yuv, int sx, int sy, int len);
-    void fillRect(SDL_Overlay *yuv, SDL_Rect *rect, int y0, int u, int v);
-    void drawLine(SDL_Overlay *yuv, int sx, int sy, int ex, int ey);
-
 };
 
 class ShowThread:public QThread{

@@ -43,7 +43,6 @@ HEADERS  += mainwindow.h \
     qcustomplot.h \
     plotdialog.h \
     process.h \
-    gilbert.h \
     externvar.h \
     raptorcode.h \
     matrix.h \

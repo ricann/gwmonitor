@@ -21,8 +21,12 @@ VideoShow::VideoShow(const DisplayPara myDispara)
 
     pFrame = avcodec_alloc_frame();//给视频帧分配空间以便存储解码后的图片
 
-    bmp = SDL_CreateYUVOverlay(pCodecCtx->width, pCodecCtx->height, SDL_YV12_OVERLAY, screen);
-    img_convert_ctx = sws_getContext(pCodecCtx->width,pCodecCtx->height,pCodecCtx->pix_fmt,pCodecCtx->width,pCodecCtx->height, PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
+    bmp = SDL_CreateYUVOverlay(pCodecCtx->width,
+        pCodecCtx->height, SDL_YV12_OVERLAY, screen);
+    img_convert_ctx = sws_getContext(pCodecCtx->width,
+        pCodecCtx->height, pCodecCtx->pix_fmt, pCodecCtx->width,
+        pCodecCtx->height, PIX_FMT_YUV420P, SWS_BICUBIC,
+        NULL, NULL, NULL);
     if (img_convert_ctx == NULL){
         cout<<"img_convert_ctx == NULL\n";
         exit(-1);
@@ -72,6 +76,7 @@ void VideoShow::SDL_init()
 
     sprintf(variable, "SDL_WINDOWID=0x%x", winid);
 
+    //ricann debug
     qDebug() << variable << endl;
 
     putenv(variable);
@@ -170,7 +175,6 @@ void VideoShow::resetDisPara(const DisplayPara myDispara)
 
 void VideoShow::slot_showvideo()
 {
-
     int frameFinished = 0;
     int decode = 0;
 
@@ -401,94 +405,6 @@ void VideoShow::slot_showvideo()
         default:
             break;
         }
-}
-
-int VideoShow::changePointsByWinNo(int &x, int &y)
-{
-    int winNo = 0;
-    //判定点所在的窗口并转换点的坐标
-    if(x>=0 && x<=(ww-5)/2 && y>=0 && y<=(hh-5)/2) {
-        //一号窗口
-        winNo = 1;
-    }
-    else if(x>=(ww+5)/2 && x<=ww-1 && y>=0 && y<=(hh-5)/2) {
-        //二号窗口
-        x = x-(ww+5)/2;
-
-        winNo = 2;
-    }
-    else if(x>=0 && x<=(ww-5)/2 && y>=(hh+5)/2 && y<=hh-1) {
-        //三号窗口
-        y = y-(hh+5)/2;
-
-        winNo = 3;
-    }
-    else if(x>=(ww+5)/2 && x<=ww-1 && y>=(hh+5)/2 && y<=hh-1) {
-        //四号窗口
-        x = x-(ww+5)/2;
-        y = y-(hh+5)/2;
-
-        winNo = 4;
-    }
-    //resize point坐标 按比例转换到480*272的yuv帧中的位置
-    x = x/(double)(ww/2)*480.0;
-    y = y/(double)(hh/2)*272.0;
-    return winNo;
-}
-
-void VideoShow::drawPoint(SDL_Overlay *yuv, int x, int y)
-{
-    drawHLine(yuv,x,y,1);
-}
-
-void VideoShow::drawHLine(SDL_Overlay *yuv, int sx, int sy, int len)
-{
-    SDL_Rect rect = {sx,sy, len, 1};
-    fillRect(yuv, &rect, 255,255,255);
-}
-
-void VideoShow::fillRect(SDL_Overlay *yuv, SDL_Rect *rect, int y0, int u, int v)
-{
-    int y;
-    int size = rect->w;
-    int uv_size = (size-1)/2+1;
-    int uv_off = 0;
-
-    for(y = 0; y< rect->h; ++y)
-    {
-        memset(yuv->pixels[0] + (rect->y + y) * yuv->pitches[0] + rect->x, y0, size);
-        if(y%2 == 0)
-        {
-            memset(yuv->pixels[1] + (uv_off + rect->y /2) * yuv->pitches[1] + rect->x/2, v, uv_size);
-            memset(yuv->pixels[2] + (uv_off + rect->y /2) * yuv->pitches[2] + rect->x/2, u, uv_size);
-            ++uv_off;
-        }
-    }
-}
-
-void VideoShow::drawLine(SDL_Overlay *yuv, int sx, int sy, int ex, int ey)
-{
-    float delta_x,delta_y,x,y;
-    int dx,dy,steps,k;
-    dx = ex-sx;
-    dy = ey-sy;
-
-    if(abs(dx)>abs(dy))
-      steps = abs(dx);
-    else
-      steps = abs(dy);
-
-    delta_x = (float)dx/(float)steps;
-    delta_y = (float)dy/(float)steps;
-    x = sx;
-    y = sy;
-    drawPoint(yuv,x,y);
-    for(k = 0;k<steps;k++)
-    {
-     x+=delta_x;
-     y+=delta_y;
-     drawPoint(yuv,x,y);
-    }
 }
 
 ShowThread::ShowThread(DisplayPara myDisPara)
