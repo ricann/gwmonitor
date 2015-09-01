@@ -92,10 +92,6 @@ typedef struct _node_info_{
 
 extern node_info_t node_info[];
 
-extern int replay;
-extern int yuv_debug;
-extern int video_debug;
-
 extern int play_or_not[MAX_CAMERA_NUM];
 extern int camera_history[MAX_PLAY_NUM];
 

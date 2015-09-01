@@ -39,11 +39,6 @@ int plot_finished_flag=1;
 enum {LENGTH_CP = 4};
 QCustomPlot* cp[LENGTH_CP];
 
-int replay = 0;
-
-int yuv_debug, video_debug;
-void config_read(int* yuv_debug, int* video_debug);
-
 /************************************************/
 //***************静态成员初始化*********************/
 int MainWindow::gatewayNo = -1;
@@ -59,7 +54,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     //ricann todo
     //配置文件中可以配置更多的内容，首先读取配置文件初始化程序中的变量
-    config_read(&yuv_debug, &video_debug);
 
     init_nodeinfo();
     init_video();
@@ -1205,36 +1199,6 @@ void MainWindow::setScalarTree()
     ui->treeWidget_plot->expandAll();
     ui->treeWidget_plot->setSelectionMode(QAbstractItemView::MultiSelection);
     ui->treeWidget_plot->setHeaderHidden(true);//treeWidget_plot的表头颜色不知道如何更改，所以直接将表头隐藏
-}
-
-void config_read(int* yuv_debug, int* video_debug)
-{
-    FILE *fd;
-    fd = fopen("./conf_video.ini", "r");
-    char read[100] = {'\0'},pres[100] = {'\0'};
-    char *now, *post = NULL;
-
-    now = fgets(read, 100, fd);
-    while(now != NULL)
-    {
-        post = strchr(read, '=');
-        strncpy(pres, now, post-now);
-        if(post != NULL)
-        {
-            post++;
-            if(!(strcmp(pres,"YUV_DEBUG")))
-            {
-                *yuv_debug = atoi(post);
-            }
-
-            else if(!(strcmp(pres,"VIDEO_DEBUG")))
-                *video_debug = atoi(post);
-
-        }
-        memset(pres,'\0',100);
-        now = fgets(read, 100, fd);
-    }
-    fclose(fd);
 }
 
 ///////////******在tab间切换槽函数******//////////////

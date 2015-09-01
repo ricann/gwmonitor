@@ -139,7 +139,7 @@ void VideoDecode::slot_decode()
             else//情况2
             {
                 //视频持续播放但是帧编号达到最大值并从0开始 或 视频回放过程中后退进度条
-                if((frame_header->frame_no <= 10) || replay == 1)
+                if(frame_header->frame_no <= 10)
                 {
                     last_frame_no = cur_frame_no;
 
@@ -377,7 +377,9 @@ void VideoDecode::slot_decode()
 
             emit sig_dataready();
 
-            if(!replay && video_debug){
+            //ricann todo
+            //写视频到文件，并且多播到ffmpeg服务器
+            if(1){
                 char swfFile[30];
                 memset(swfFile, 0, 30);
                 if(store_v == NULL){
