@@ -25,7 +25,6 @@ SOURCES += main.cpp\
     process.cpp \
     raptorcode.cpp \
     matrix.cpp \
-    paintableVedio.cpp \
     luagw.cpp \
     videoControl.cpp \
     dragablebutton.cpp \
@@ -46,7 +45,6 @@ HEADERS  += mainwindow.h \
     externvar.h \
     raptorcode.h \
     matrix.h \
-    paintableVedio.h \
     luagw.h \
     videoControl.h \
     dragablebutton.h \
