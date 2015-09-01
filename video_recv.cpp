@@ -52,16 +52,8 @@ VideoRecv::~VideoRecv()
 {
     //ricann todo, 下面的代码不知道有没有问题
     //udp_sock需要释放
-    //heart_sock->deleteLater();
-    //udp_sock->deleteLater();
-    if(udp_sock) {
-        delete udp_sock;
-        udp_sock = 0;
-    }
-    if(heart_sock) {
-        delete heart_sock;
-        heart_sock = 0;
-    }
+    heart_sock->deleteLater();
+    udp_sock->deleteLater();
 }
 
 void VideoRecv::slot_recvdata()
@@ -71,8 +63,6 @@ void VideoRecv::slot_recvdata()
 
     while(udp_sock->hasPendingDatagrams())
     {
-        //ricann todo, 根据node_info中的信息对接收哪些视频信息进行限制
-
         //ring is full, drop this frame
         if(VRING_HEAD == ((VRING_TAIL+1) % VIDEO_RING_NUM)) {
             qDebug()<<"video ring is full!!\n";
@@ -102,6 +92,28 @@ void VideoRecv::slot_recvdata()
 
         //get frame header
         memcpy(&VRING_TAIL_FARAME_HDR, VRING_TAIL_FARAME_BUF, sizeof(Frame_header));
+        VRING_TAIL_FARAME_HDR.frame_no = ntohl(VRING_TAIL_FARAME_HDR.frame_no);
+        VRING_TAIL_FARAME_HDR.slice_no = ntohl(VRING_TAIL_FARAME_HDR.slice_no);
+        VRING_TAIL_FARAME_HDR.frame_type = ntohl(VRING_TAIL_FARAME_HDR.frame_type);
+        VRING_TAIL_FARAME_HDR.F = ntohl(VRING_TAIL_FARAME_HDR.F);
+        VRING_TAIL_FARAME_HDR.T = ntohl(VRING_TAIL_FARAME_HDR.T);
+        VRING_TAIL_FARAME_HDR.K = ntohl(VRING_TAIL_FARAME_HDR.K);
+        VRING_TAIL_FARAME_HDR.R = ntohl(VRING_TAIL_FARAME_HDR.R);
+        VRING_TAIL_FARAME_HDR.esi = ntohl(VRING_TAIL_FARAME_HDR.esi);
+        VRING_TAIL_FARAME_HDR.camera_no = ntohl(VRING_TAIL_FARAME_HDR.camera_no);
+
+        qDebug() << "[slot_recvdata]=============>" << endl
+                 << "ip = " << VRING_TAIL_FARAME_IP << endl
+                 << "port = " << VRING_TAIL_FARAME_PORT << endl
+                 << "frame_no = " << VRING_TAIL_FARAME_HDR.frame_no << endl
+                 << "slice_no = " << VRING_TAIL_FARAME_HDR.slice_no << endl
+                 << "frame_type = " << VRING_TAIL_FARAME_HDR.frame_type << endl
+                 << "F = " << VRING_TAIL_FARAME_HDR.F << endl
+                 << "T = " << VRING_TAIL_FARAME_HDR.T << endl
+                 << "K = " << VRING_TAIL_FARAME_HDR.K << endl
+                 << "R = " << VRING_TAIL_FARAME_HDR.R << endl
+                 << "esi = " << VRING_TAIL_FARAME_HDR.esi << endl
+                 << "camera_no = " << VRING_TAIL_FARAME_HDR.camera_no << endl;
 
         //update ring tail number
         VRING_TAIL = (VRING_TAIL+1) % VIDEO_RING_NUM;
@@ -155,6 +167,8 @@ void VideoRecv::slot_recvheart()
                  << "port = " << node_info[camid].port
                  << endl;
     }
+
+    slot_sendtime(camid);
 }
 
 void VideoRecv::slot_timeout()
@@ -171,8 +185,30 @@ void VideoRecv::slot_timeout()
             //ricann todo
             emit sig_setvtree();
         }
-
     }
+}
+
+void VideoRecv::slot_sendtime(int camid)
+{
+    QByteArray datagram;
+    QDataStream out(&datagram, QIODevice::WriteOnly);
+    QTime startTime(0, 0, 0);
+    QTime endTime(23, 0, 0);
+    int start;
+    int end;
+
+    //ricann todo,仅作测试用，用于打开远端视频传输
+    out.setVersion(QDataStream::Qt_4_8);
+    start = startTime.toString("hh").toInt()*60 + startTime.toString("mm").toInt();
+    end = endTime.toString("hh").toInt()*60 + endTime.toString("mm").toInt();
+    out << start << end;
+
+    qDebug() << "[slot_sendtime]"
+             << "datagram = " << datagram
+             << "ip = " << node_info[camid].ip
+             << "port = " << node_info[camid].port
+             << endl;
+    heart_sock->writeDatagram(datagram, node_info[camid].ip, node_info[camid].port);
 }
 
 RecvThread::RecvThread()
@@ -193,7 +229,6 @@ void RecvThread::run()
     vr.moveToThread(this);
 
     //到这来的信号
-    //connect(this, SIGNAL(dataArrived()), &obj, SLOT(decode()), Qt::BlockingQueuedConnection);
 
     //送出去的信号
     connect(&vr, SIGNAL(sig_dataready()),

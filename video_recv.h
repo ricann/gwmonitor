@@ -59,6 +59,8 @@ private slots:
     void slot_recvheart();
     //每隔一分钟检查一下摄像头活动节点有无超时的节点
     void slot_timeout();
+
+    void slot_sendtime(int camid);
 };
 
 class RecvThread:public QThread{
@@ -72,6 +74,7 @@ public:
 
 signals:
     void sig_setvtree();
+
 };
 
 extern udppkt_ring_t video_ring;

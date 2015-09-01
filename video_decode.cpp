@@ -45,6 +45,9 @@ VideoDecode::~VideoDecode()
 
 void VideoDecode::slot_decode()
 {
+    int data_len;
+    int T_cur;
+
     //video_ring is empty
     if(VRING_HEAD == VRING_TAIL)
         return;
@@ -60,17 +63,11 @@ void VideoDecode::slot_decode()
 
     frame_header = (Frame_header*)malloc(sizeof(Frame_header));
     memcpy((char *)frame_header, &VRING_HEAD_FARAME_HDR, sizeof(Frame_header));
-
+    T_cur = frame_header->T;
 
     //ricann todo, 这一部分有待优化
-    camera_no = ntohl(frame_header->camera_no);
+    camera_no = frame_header->camera_no;
 
-    frame_header->T = ntohl(frame_header->T);
-    int T_cur = frame_header->T;
-
-    frame_header->slice_no = ntohl(frame_header->slice_no);
-
-    int data_len;
     memcpy(&data_len, VRING_HEAD_FARAME_BUF + T_cur + sizeof(Frame_header), 4);
     data_len = ntohl(data_len);
 
@@ -80,104 +77,51 @@ void VideoDecode::slot_decode()
         memset(frame_data, 0, T_cur+1);
 
         //ricann todo,感觉可优化
-        if(i == 0){
-            frame_header->frame_no = ntohl(frame_header->frame_no);
-            frame_header->frame_type = ntohl(frame_header->frame_type);
-            frame_header->F = ntohl(frame_header->F);
-            frame_header->K = ntohl(frame_header->K);
-            frame_header->R = ntohl(frame_header->R);
-            frame_header->esi = ntohl(frame_header->esi);
-
-            memcpy((char *)(frame_data), VRING_HEAD_FARAME_BUF+sizeof(Frame_header), \
-                   frame_header->T);
-        } else {
+        if(i != 0) {
             (frame_header->slice_no)++;
             (frame_header->esi)++;
-            memcpy((char *)(frame_data), VRING_HEAD_FARAME_BUF+i*T_cur+sizeof(Frame_header)+ \
-                   sizeof(int), frame_header->T);
+        }
+        memcpy((char *)(frame_data), VRING_HEAD_FARAME_BUF + \
+            i*(frame_header->T)+sizeof(Frame_header)+ sizeof(int), \
+            frame_header->T);
 
-            /*
-            if(i == data_len){
-                free(VRING_HEAD_FARAME_BUF);
-                VRING_HEAD_FARAME_BUF = NULL;
-            }
-            //*/
+        if((frame_header->frame_no < cur_frame_no) &&
+                (frame_header->frame_no > 10)) {
+            qDebug() << "[slot_decode]drop frame_no = "
+                     << frame_header->frame_no <<endl;
+            //直接丢弃
+            continue;
         }
 
         //当收到的分片的帧号与预计收到的不同时，cur_frame_no 是当前应该收到的帧号
         //两种特殊情况：1.收到超前的分片 2.接收到已经过期的分片
         if(frame_header->frame_no != cur_frame_no)
         {
-            if(frame_header->frame_no > cur_frame_no)//情况1
+            last_frame_no = cur_frame_no;
+
+            if(frame_header->frame_type == 1)//raptor
             {
-                last_frame_no = cur_frame_no;
+                cur_frame_no = frame_header->frame_no;//重新开始计数
 
-                if(frame_header->frame_type == 1)//raptor
-                {
-                    //printf("recount\n");
-                    cur_frame_no = frame_header->frame_no;//重新开始计数
+                //保存上一帧的相关数据计数信息
+                raptor_K_recieve = raptor_K_temp;
+                raptor_R_recieve = raptor_R_temp;
+                raptor_N_recieve = raptor_N_temp;
 
-                    //保存上一帧的相关数据计数信息
-                    raptor_K_recieve = raptor_K_temp;
-                    raptor_R_recieve = raptor_R_temp;
-                    raptor_N_recieve = raptor_N_temp;
+                //重新计数
+                raptor_K_temp = 0;
+                raptor_R_temp = 0;
 
-                    //重新计数
-                    raptor_K_temp = 0;
-                    raptor_R_temp = 0;
+                if(frame_header->esi < frame_header->K)
+                    raptor_K_temp = 1;
+                else
+                    raptor_R_temp = 1;
+                raptor_N_temp = 1;
 
-                    if(frame_header->esi < frame_header->K)
-                        raptor_K_temp = 1;
-                    else
-                        raptor_R_temp = 1;
-                    raptor_N_temp = 1;
-
-                    list_temp = frame_header->esi;
-                }
-                else//非raptor 直接进入解码上一帧的流程
-                {
-                    cur_frame_no = frame_header->frame_no;
-                }
+                list_temp = frame_header->esi;
             }
-            else//情况2
-            {
-                //视频持续播放但是帧编号达到最大值并从0开始 或 视频回放过程中后退进度条
-                if(frame_header->frame_no <= 10)
-                {
-                    last_frame_no = cur_frame_no;
 
-                    if(frame_header->frame_type == 1)//raptor
-                    {
-                        //printf("recount\n");
-                        cur_frame_no = frame_header->frame_no;//重新开始计数
-
-                        //保存上一帧的相关数据计数信息
-                        raptor_K_recieve = raptor_K_temp;
-                        raptor_R_recieve = raptor_R_temp;
-                        raptor_N_recieve = raptor_N_temp;
-
-                        //重新计数
-                        raptor_K_temp = 0;
-                        raptor_R_temp = 0;
-
-                        if(frame_header->esi < frame_header->K)
-                            raptor_K_temp = 1;
-                        else
-                            raptor_R_temp = 1;
-                        raptor_N_temp = 1;
-
-                        list_temp = frame_header->esi;
-                    }
-                    else//非raptor 直接进入解码上一帧的流程
-                    {
-                        cur_frame_no = frame_header->frame_no;
-                    }
-                }
-                else//直接丢弃
-                {
-                    continue;
-                }
-            }//情况2
+            //非raptor 直接进入解码上一帧的流程
         }
         else//接收到预计帧的分片
         {
