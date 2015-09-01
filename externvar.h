@@ -60,6 +60,8 @@ typedef struct _cam_info_{
     int cam_alive;
     //是否为选中播放的节点
     int cam_play;
+    //选中为播放节点之后所占用的播放窗口
+    int cam_winid;
     //记录心跳来的时间
     QTime htime;
 }cam_info_t;

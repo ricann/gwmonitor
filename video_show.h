@@ -32,8 +32,6 @@ public:
 
 public slots:
     void slot_showvideo();
-    void resetDisPara(const DisplayPara myDispara);
-    void resetCamera(const int cameraNo, const int winNo);
 
 private:
     int camera_no;

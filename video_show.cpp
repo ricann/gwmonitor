@@ -138,18 +138,6 @@ void VideoShow::SDL_init()
     }
 }
 
-void VideoShow::resetCamera(const int cameraNo,const int winNo)
-{
-    camera_no = cameraNo;
-    win_no=winNo;
-}
-
-void VideoShow::resetDisPara(const DisplayPara myDispara)
-{
-    ww = myDispara.my_width;
-    hh = myDispara.my_height;
-}
-
 void VideoShow::slot_showvideo()
 {
     int frameFinished = 0;
@@ -163,18 +151,33 @@ void VideoShow::slot_showvideo()
         return;
 
     camera_no = SRING_HEAD_FARAME_CNO;
+    win_no = node_info[camera_no].cam_info.cam_winid;
     pFrameNoNow = SRING_HEAD_FARAME_FNO;
     dataLength = SRING_HEAD_FARAME_SIZE;
+
+    qDebug() << "[slot_showvideo]"
+             << "camera_no = " << camera_no
+             << "win_no = " << win_no
+             << "pFrameNoNow = " << pFrameNoNow
+             << "dataLength = " << dataLength
+             << endl;
+
     showData = (char*)malloc((dataLength+1)*sizeof(char));
+    if(!showData) {
+        qDebug() <<"malloc failed!" <<endl;
+        exit(-1);
+    }
+
+    //ricann todo,知道SRING_HEAD_FARAME_SIZE的常见大小之后，考虑用数组
     memcpy(showData, SRING_HEAD_FARAME_BUF, dataLength);
     showData[dataLength] = '\0';
+    decode = avcodec_decode_video(pCodecCtxT, pFrame,
+        &frameFinished, (const unsigned char*)showData, dataLength);
+    free(showData);
+    showData = NULL;
 
-    if(showData) {
-        decode = avcodec_decode_video(pCodecCtxT, pFrame,
-            &frameFinished, (const unsigned char*)showData, dataLength);
-        free(showData);
-        showData = NULL;
-    }
+    //update sring head number
+    SRING_HEAD = (SRING_HEAD+1) % VIDEO_RING_NUM;
 
     if(frameFinished > 0) {
         SDL_LockYUVOverlay(bmp);
@@ -222,9 +225,9 @@ void VideoShow::slot_showvideo()
             break;
         }
     } else if(decode <= 0)
-        qDebug() <<"frameFinished <= 0 ; decode > 0" <<endl;
+        qDebug() <<"frameFinished <= 0 ; decode <= 0" << endl;
     else
-        qDebug() <<"frameFinished <= 0 ; decode <= 0" <<endl;
+        qDebug() <<"frameFinished <= 0 ; decode > 0" << endl;
 
     //update pFrameNo
     pFrameNoNext = pFrameNoNow + 1;
@@ -235,22 +238,18 @@ void VideoShow::slot_showvideo()
     SDL_PollEvent(&event_sdl);
     switch(event_sdl.type){
     case SDL_KEYDOWN:
-        switch(event_sdl.key.keysym.sym){
-        case SDLK_UP: break;
-        case SDLK_DOWN: break;
-        default: break;
-        }
         qDebug() << "SDL_KEYDOWN" << endl;
         break;
     case SDL_VIDEORESIZE:
+        qDebug() << "SDL_VIDEORESIZE" << endl;
         screen = SDL_SetVideoMode(event_sdl.resize.w, event_sdl.resize.h, 0,
             SDL_HWSURFACE|SDL_RESIZABLE|SDL_ASYNCBLIT|SDL_HWACCEL);
         break;
     case SDL_QUIT:
+        qDebug() << "SDL_QUIT" << endl;
         SDL_FreeSurface(screen);
         SDL_Quit();
         av_free(pFrame);
-        qDebug() << "event SDL_QUIT occurred" << endl;
         exit(0);
         break;
     default:
@@ -277,14 +276,9 @@ void ShowThread::run()
     VideoShow vs(myShowPara);
     vs.moveToThread(this);
 
-
     connect(this, SIGNAL(sig_dataarrived()),
             &vs, SLOT(slot_showvideo()),
             Qt::BlockingQueuedConnection);
 
-/*    connect(this, SIGNAL(resetCamera(const int,const int)), &obj, SLOT(resetCamera(const int,const int)), Qt::BlockingQueuedConnection);
-
-    connect(this, SIGNAL(resetWinPara(const DisplayPara)), &obj, SLOT(resetDisPara(const DisplayPara)), Qt::BlockingQueuedConnection);
-//*/
     exec();
 }

@@ -62,6 +62,9 @@ void VideoDecode::slot_decode()
     memcpy((char *)frame_header, &VRING_HEAD_FARAME_HDR, sizeof(Frame_header));
 
 
+    //ricann todo, 这一部分有待优化
+    camera_no = ntohl(frame_header->camera_no);
+
     frame_header->T = ntohl(frame_header->T);
     int T_cur = frame_header->T;
 
@@ -73,10 +76,10 @@ void VideoDecode::slot_decode()
 
     for(int i = 0; i < data_len + 1; i++)
     {
-
         char *frame_data = new char[T_cur+1];
         memset(frame_data, 0, T_cur+1);
 
+        //ricann todo,感觉可优化
         if(i == 0){
             frame_header->frame_no = ntohl(frame_header->frame_no);
             frame_header->frame_type = ntohl(frame_header->frame_type);
@@ -368,6 +371,7 @@ void VideoDecode::slot_decode()
         if(output_buf_size)
         {
             SRING_TAIL_FARAME_FNO = last_frame_no;
+            SRING_HEAD_FARAME_CNO = camera_no;
             SRING_TAIL_FARAME_SIZE = output_buf_size;
             memcpy(SRING_TAIL_FARAME_BUF, output_buf, output_buf_size);
             SRING_TAIL_FARAME_BUF[output_buf_size] = '\0';

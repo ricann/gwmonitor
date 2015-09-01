@@ -108,6 +108,9 @@ signals:
     void resetWinHandle3(const DisplayPara);
     /********************************/
     
+    //ricann add, 20150901
+    void sig_clickplay();
+
 private slots:
 
     //ricann todo

@@ -563,7 +563,32 @@ void MainWindow::slot_vtree_click(QTreeWidgetItem * item, int column)
 
 void MainWindow::slot_vtree_play()
 {
+    int winid = 1;
 
+    for(int i=1; i<=MAX_NODE_NUM; i++) {
+        //节点没使用，跳过
+        if(!node_info[i].is_used)
+            continue;
+
+        //节点摄像头没有心跳，跳过
+        if(!node_info[i].cam_info.cam_alive)
+            continue;
+
+        //节点摄像头没设置播放，跳过
+        if(!node_info[i].cam_info.cam_play)
+            continue;
+
+        //播放窗口大于最大值，跳出
+        if(winid > MAX_PLAY_NUM)
+            break;
+
+        node_info[i].cam_info.cam_winid = winid;
+
+        winid++;
+    }
+
+    //发信息来进行播放
+    //emit sig_clickplay();
 }
 
 void MainWindow::addJavaScriptObject()

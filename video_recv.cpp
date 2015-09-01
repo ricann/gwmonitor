@@ -72,8 +72,6 @@ void VideoRecv::slot_recvdata()
     while(udp_sock->hasPendingDatagrams())
     {
         //ricann todo, 根据node_info中的信息对接收哪些视频信息进行限制
-        //if(video_allowed!=1 || video_sure!=1)
-        //    continue;
 
         //ring is full, drop this frame
         if(VRING_HEAD == ((VRING_TAIL+1) % VIDEO_RING_NUM)) {
@@ -104,9 +102,6 @@ void VideoRecv::slot_recvdata()
 
         //get frame header
         memcpy(&VRING_TAIL_FARAME_HDR, VRING_TAIL_FARAME_BUF, sizeof(Frame_header));
-
-        //ricann todo
-        //回放时停止相应摄像头的实时数据接收
 
         //update ring tail number
         VRING_TAIL = (VRING_TAIL+1) % VIDEO_RING_NUM;
