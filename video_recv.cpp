@@ -137,6 +137,7 @@ void VideoRecv::slot_recvheart()
     QByteArray datagram;
     int camid;
 
+    //ricann debug
     qDebug() << "[slot_recvheart] begin" <<endl;
 
     while(heart_sock->hasPendingDatagrams()) {

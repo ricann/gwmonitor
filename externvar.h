@@ -19,7 +19,7 @@
 
 #define MAX_FRAME_BUF       1522
 
-#define MAX_BUF             4096
+#define MAX_BUF             8192
 
 #define VIDEO_RING_NUM    100
 

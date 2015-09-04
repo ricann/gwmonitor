@@ -1,5 +1,4 @@
 #include <WinSock2.h>
-#include <iostream>
 
 #include "video_recv.h"
 #include "video_show.h"
@@ -142,11 +141,25 @@ void VideoDecode::decode_init()
 
     memcpy(&loop_num, VRING_HEAD_FARAME_BUF + T + sizeof(Frame_header), 4);
     loop_num = ntohl(loop_num);
-    qDebug() << "[slot_decode]data_len = " << loop_num << endl;
+
+    qDebug() << "[decode_init]=============>" << endl
+             << "frame_no = " << frame_no << endl
+             << "slice_no = " << slice_no << endl
+             << "frame_type = " << frame_type << endl
+             << "F = " << F << endl
+             << "T = " << T << endl
+             << "K = " << K << endl
+             << "R = " << R << endl
+             << "esi = " << esi << endl
+             << "camera_no = " << camera_no << endl
+             << "loop_num = " << loop_num << endl;
 }
 
 int VideoDecode::pre_raptor(int i)
 {
+    //ricann debug
+    qDebug() << "[pre_raptor] begin" <<endl;
+
     slice_no++;
     esi++;
 
@@ -229,6 +242,9 @@ void VideoDecode::do_raptor()
 {
     int result_dec = 0;
 
+    //ricann debug
+    qDebug() << "[do_raptor] begin" <<endl;
+
     if(frame_type != 1)
         return;
 
@@ -243,6 +259,8 @@ void VideoDecode::do_raptor()
         output_buf_size = K_old*T;
 
         if(output_buf_size){
+            qDebug() << "[decode_init]output_buf_size = "
+                     << output_buf_size << endl;
             memcpy(output_buf, input_buf, output_buf_size);
             output_buf[output_buf_size] = '\0';
         }
@@ -259,6 +277,13 @@ void VideoDecode::do_raptor()
 
         for(uint32 i = 0; i < raptor_N_recieve; i++)
             para->list[i] = list_cur[i];
+
+        qDebug() << "[decode_init](para->S+para->H+raptor_N_recieve)*T = "
+                 << (para->S+para->H+raptor_N_recieve)*T << endl;
+
+        qDebug() << "[decode_init]raptor_N_recieve*T = "
+                 << raptor_N_recieve*T << endl;
+
         memset(temp, 0, (para->S+para->H+raptor_N_recieve)*T);
         memcpy(temp+(para->S+para->H)*T,input_buf, raptor_N_recieve*T);
 
@@ -266,6 +291,10 @@ void VideoDecode::do_raptor()
 
         if(result_dec){
             output_buf_size = K_old*T;
+
+            qDebug() << "[decode_init]K_old*T = "
+                     << K_old*T << endl;
+
             //解码成功后，将结果存入output_buf
             memcpy(output_buf, output, K_old*T);
             output_buf[K_old*T] = '\0';
@@ -274,8 +303,12 @@ void VideoDecode::do_raptor()
             output_buf_size = (K_old+R_old)*T;
 
             if(output_buf_size){
-                for(uint32 i = 0; i < raptor_N_recieve; i++)
+                for(uint32 i = 0; i < raptor_N_recieve; i++) {
+                    qDebug() << "[decode_init]list_cur[i]*T = "
+                             << list_cur[i]*T << endl;
+
                     memcpy(output_buf+list_cur[i]*T, input_buf+i*T, T);
+                }
                 input_buf_size = 0;
             }
         }
@@ -288,9 +321,11 @@ void VideoDecode::do_raptor()
 
         if(output_buf_size){
             memset(output_buf, 0, output_buf_size+1);
-            for(uint32 i = 0; i < raptor_N_recieve; i++)
+            for(uint32 i = 0; i < raptor_N_recieve; i++) {
+                qDebug() << "[decode_init]2 list_cur[i]*T = "
+                         << list_cur[i]*T << endl;
                 memcpy(output_buf+list_cur[i]*T, input_buf+i*T, T);
-
+            }
             input_buf_size = 0;
         }
     }//else分片数不足
@@ -300,6 +335,9 @@ void VideoDecode::do_raptor()
 
 void VideoDecode::fol_raptor()
 {
+    //ricann debug
+    qDebug() << "[fol_raptor] begin" <<endl;
+
     //视频存储帧号可能不从1开始，因而导致视与源视频帧不对齐
     if(output_buf_size)
     {
