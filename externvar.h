@@ -12,15 +12,14 @@
 
 #include <WinSock2.h>
 
-#define K1_MAX 10
-#define T_MAX 1024
-
 #define MAX_NODE_NUM        7
 #define MAX_CAMERA_NUM      MAX_NODE_NUM
 #define MAX_PLAY_NUM        4
 #define MAX_STR_LEN         256
 
-#define MAXLINE sizeof(Frame_header)+T_MAX
+#define MAX_FRAME_BUF       1522
+
+#define MAX_BUF             4096
 
 #define VIDEO_RING_NUM    100
 

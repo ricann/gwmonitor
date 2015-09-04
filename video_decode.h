@@ -27,6 +27,10 @@ typedef struct _showfr_ring_{
 #define SRING_HEAD_FARAME_BUF   showfr_ring.frame[showfr_ring.head].h264node
 #define SRING_TAIL_FARAME_BUF   showfr_ring.frame[showfr_ring.tail].h264node
 
+
+#define DECODE_LOOP_NEXT        0
+#define DECODE_LOOP_CUR         1
+
 class VideoDecode:public QObject{
 Q_OBJECT
 public:
@@ -34,14 +38,42 @@ public:
     ~VideoDecode();
 
 private:
-    Frame_header *frame_header;
+    void decode_alloc();
+    void decode_free();
+    void decode_init();
 
+    int pre_raptor(int i);
+    void do_raptor();
+    void fol_raptor();
+
+private:
+    int frame_no;
+    long slice_no;
+    int frame_type;
+    long F;
+    int T;
+    int K;
+    int R;
+    int esi;
+    int camera_no;
+
+    int loop_num;
+
+private:
     char *input_buf;
     char *output_buf;
+    uint16 *list_cur;
+    RParam_dec para;
+    uint8 *temp;
+    uint8 *output;
+    char *frame_data;
 
     long output_buf_size;
     long input_buf_size;
-    int K_old, R_old;
+
+    int K_old;
+    int R_old;
+
     int cur_frame_no;
     int last_frame_no;
     int old_frame_no;
@@ -55,16 +87,7 @@ private:
     uint32 raptor_R_temp;
     uint32 raptor_N_temp;
 
-    uint16 *list_cur;
     uint16 list_temp;
-
-    int camera_no;
-
-    QUdpSocket *groupBroadcast;
-
-    /******file*****/
-
-    FILE *store_v;
 
 signals:
     void sig_dataready();

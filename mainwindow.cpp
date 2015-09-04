@@ -217,9 +217,6 @@ void MainWindow::init_video()
     (*decode_thread).start();
     (*show_thread).start();
 
-    connect(this, SIGNAL(sig_sendtime()),
-            recv_thread, SIGNAL(sig_sendtime()));
-
     connect(recv_thread, SIGNAL(sig_setvtree()),
             this, SLOT(slot_vtree_set()));
 

@@ -37,7 +37,6 @@ VideoRecv::VideoRecv()
     }
 
     //打开心跳文件
-    qDebug() << "b4 open file" << endl;
     pfile = new QFile(VIDEO_HEART_FILE);
     if(!pfile->open(QIODevice::WriteOnly |
                     QIODevice::Append |
@@ -45,7 +44,6 @@ VideoRecv::VideoRecv()
         qDebug()<<"Can't open file "<< VIDEO_HEART_FILE << endl;
         //ricann todo, 退出程序
     }
-    qDebug() << "after open file" << endl;
 }
 
 VideoRecv::~VideoRecv()
@@ -71,13 +69,16 @@ void VideoRecv::slot_recvdata()
 
         //read udp data to ring tail node
         udp_sock->readDatagram(VRING_TAIL_FARAME_BUF,
-                MAXLINE,
+                MAX_FRAME_BUF,
                 &VRING_TAIL_FARAME_IP,
                 &VRING_TAIL_FARAME_PORT);
 
         //ricann todo, 不知道这个判断是什么意思
-        if(VRING_TAIL_FARAME_BUF[0] == '#')
+        if(VRING_TAIL_FARAME_BUF[0] == '#') {
+            qDebug() << "[slot_recvdata]"
+                     << VRING_TAIL_FARAME_BUF << endl;
             continue;
+        }
 
         //不在播放列表里的视频数据包不进行解析
         p = (Frame_header *)VRING_TAIL_FARAME_BUF;
@@ -87,8 +88,11 @@ void VideoRecv::slot_recvdata()
                      << camid << endl;
             continue;
         }
-        if(node_info[camid].cam_info.cam_play == FALSE)
+        if(node_info[camid].cam_info.cam_play == FALSE) {
+            qDebug() << "[slot_recvdata]cam_play is FALSE,camid = "
+                     << camid << endl;
             continue;
+        }
 
         //get frame header
         memcpy(&VRING_TAIL_FARAME_HDR, VRING_TAIL_FARAME_BUF, sizeof(Frame_header));
@@ -133,7 +137,10 @@ void VideoRecv::slot_recvheart()
     QByteArray datagram;
     int camid;
 
+    qDebug() << "[slot_recvheart] begin" <<endl;
+
     while(heart_sock->hasPendingDatagrams()) {
+
         //让datagram的大小为等待处理的数据报的大小，这样才能接收到完整的数据
         datagram.resize(heart_sock->pendingDatagramSize());
         //接收数据报，将其存放到datagram中
@@ -146,6 +153,7 @@ void VideoRecv::slot_recvheart()
         }
 
         if(node_info[camid].cam_info.cam_alive == FALSE) {
+            node_info[camid].cam_info.cam_alive = TRUE;
             emit sig_setvtree();
         }
 
@@ -153,7 +161,6 @@ void VideoRecv::slot_recvheart()
         node_info[camid].is_used = TRUE;
         memcpy(&node_info[camid].ip, &sip, sizeof(QHostAddress));
         node_info[camid].port = sport;
-        node_info[camid].cam_info.cam_alive = TRUE;
         node_info[camid].cam_info.htime.restart();
 
         //心跳信息写入文件
@@ -167,8 +174,6 @@ void VideoRecv::slot_recvheart()
                  << "port = " << node_info[camid].port
                  << endl;
     }
-
-    slot_sendtime(camid);
 }
 
 void VideoRecv::slot_timeout()

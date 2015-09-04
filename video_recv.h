@@ -8,7 +8,7 @@ typedef struct _udppkt_info_{
     quint16 port;
 
     Frame_header frame_hdr;
-    char frame_buf[MAXLINE];
+    char frame_buf[MAX_FRAME_BUF];
 }udppkt_info_t;
 
 typedef struct _udppkt_ring_{
